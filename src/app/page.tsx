@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Moon, Sun } from 'lucide-react';
 
 // Boiler type definition
 interface Boiler {
@@ -81,6 +81,20 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [theme, setTheme] = useState('dark');
+  const [language, setLanguage] = useState('ru');
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+  
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   const handleBuyClick = (boiler: Boiler) => {
     setSelectedBoiler(boiler);
@@ -116,11 +130,34 @@ export default function Home() {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="container mx-auto py-6 px-4">
-        <h1 className="text-4xl font-bold text-foreground">Продажа котлов</h1>
-        <p className="text-lg text-muted-foreground mt-2">Выберите лучший котел для вашего дома</p>
+       <header className="container mx-auto py-4 px-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-foreground">Продажа котлов</h1>
+        <div className="flex items-center gap-4">
+           <div className="flex items-center gap-2">
+            <Button 
+              variant={language === 'ru' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setLanguage('ru')}
+            >
+              RU
+            </Button>
+            <Button 
+              variant={language === 'uz' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setLanguage('uz')}
+            >
+              UZ
+            </Button>
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </div>
       </header>
       <main className="container mx-auto p-4">
+        <p className="text-lg text-muted-foreground mt-2 mb-8">Выберите лучший котел для вашего дома</p>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {fakeBoilers.map((boiler) => (
@@ -221,9 +258,6 @@ export default function Home() {
           )}
         </Dialog>
       </main>
-      <footer className="container mx-auto py-6 px-4 mt-8 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Продажа котлов. Все права защищены.</p>
-      </footer>
     </div>
   );
 }
