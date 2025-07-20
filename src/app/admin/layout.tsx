@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
-
 import uz from '@/locales/uz.json';
+import { cn } from '@/lib/utils';
 
 const t = uz.admin;
 
@@ -18,6 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState('dark');
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -74,20 +75,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
+  const handleLinkClick = () => {
+    setIsSheetOpen(false);
+  };
+
   const navContent = (
     <div className="flex flex-col justify-between h-full p-4">
         <nav className="grid gap-4 text-lg font-medium">
            <div className="grid grid-cols-2 gap-4">
-             <Link href="/admin/requests" passHref>
-              <Card className="hover:bg-accent cursor-pointer">
+             <Link href="/admin/requests" passHref onClick={handleLinkClick}>
+              <Card className={cn("hover:bg-accent cursor-pointer", {
+                  "bg-primary text-primary-foreground hover:bg-primary/90": pathname === '/admin/requests',
+              })}>
                 <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
                   <List className="h-8 w-8 mb-2" />
                   <span className="text-center">{t.requests}</span>
                 </CardContent>
               </Card>
             </Link>
-            <Link href="/admin/create-boiler" passHref>
-              <Card className="hover:bg-accent cursor-pointer">
+            <Link href="/admin/create-boiler" passHref onClick={handleLinkClick}>
+              <Card className={cn("hover:bg-accent cursor-pointer", {
+                  "bg-primary text-primary-foreground hover:bg-primary/90": pathname === '/admin/create-boiler',
+              })}>
                   <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
                       <PlusSquare className="h-8 w-8 mb-2" />
                       <span className="text-center">{t.createBoiler}</span>
@@ -115,7 +124,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-          <Sheet>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button size="icon" variant="outline">
                   <Menu className="h-5 w-5" />
