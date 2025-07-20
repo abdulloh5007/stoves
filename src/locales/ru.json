@@ -28,6 +28,32 @@
     "totalBoilers": "Всего котлов",
     "newApplications": "Новые заявки"
   },
+  "requests": {
+    "title": "Заявки",
+    "description": "Список всех поступивших заявок на покупку котлов.",
+    "boilerName": "Название котла",
+    "customerName": "Имя клиента",
+    "phone": "Телефон",
+    "price": "Предложенная цена",
+    "status": "Статус"
+  },
+  "createBoiler": {
+    "title": "Создать новый котел",
+    "description": "Заполните все поля для добавления нового котла в каталог.",
+    "name_ru": "Название (RU)",
+    "name_ru_placeholder": "Например, Котел 'Пламя-5'",
+    "name_uz": "Название (UZ)",
+    "name_uz_placeholder": "Masalan, 'Plamya-5' qozoni",
+    "description_ru": "Описание (RU)",
+    "description_ru_placeholder": "Опишите характеристики котла...",
+    "description_uz": "Описание (UZ)",
+    "description_uz_placeholder": "Qozonning xususiyatlarini tasvirlab bering...",
+    "price": "Цена (UZS)",
+    "image": "Изображение",
+    "submitButton": "Создать котел",
+    "successTitle": "Успешно!",
+    "successDescription": "Новый котел был успешно создан."
+  },
   "login": {
     "title": "Вход для администратора",
     "description": "Введите ваши данные для входа в панель управления.",

@@ -40,6 +40,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!loggedInStatus && pathname !== '/admin/login') {
         router.push('/admin/login');
       }
+
+      if (loggedInStatus && pathname === '/admin') {
+        router.push('/admin/requests');
+      }
     }
   }, [pathname, router]);
 
@@ -83,82 +87,71 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const navContent = (
-    <nav className="grid gap-4 text-lg font-medium">
-      <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
-        <span className="">{t.dashboard}</span>
-      </Link>
-      <div className="grid grid-cols-2 gap-4">
-         <Link href="/admin" passHref>
+    <nav className="grid gap-4 text-lg font-medium p-4">
+       <div className="grid grid-cols-2 gap-4">
+         <Link href="/admin/requests" passHref>
           <Card className="hover:bg-accent cursor-pointer">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-              <Home className="h-8 w-8 mb-2" />
-              <span>{t.main}</span>
+            <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+              <List className="h-8 w-8 mb-2" />
+              <span className="text-center">{t.requests}</span>
             </CardContent>
           </Card>
         </Link>
-        <Card className="hover:bg-accent cursor-pointer">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-                <List className="h-8 w-8 mb-2" />
-                <span>{t.requests}</span>
-            </CardContent>
-        </Card>
+        <Link href="/admin/create-boiler" passHref>
+          <Card className="hover:bg-accent cursor-pointer">
+              <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+                  <PlusSquare className="h-8 w-8 mb-2" />
+                  <span className="text-center">{t.createBoiler}</span>
+              </CardContent>
+          </Card>
+        </Link>
       </div>
-       <Card className="hover:bg-accent cursor-pointer col-span-2">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-                <PlusSquare className="h-8 w-8 mb-2" />
-                <span>{t.createBoiler}</span>
-            </CardContent>
-        </Card>
     </nav>
   );
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-       <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col border-r bg-background sm:flex">
-        <div className="flex flex-col gap-y-4 p-6">
-         {navContent}
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button size="icon" variant="outline">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="pt-16">
+            {navContent}
+          </SheetContent>
+        </Sheet>
+        
+        <h1 className="text-lg font-semibold md:text-xl">
+           <Link href="/admin/requests">{t.dashboard}</Link>
+        </h1>
+
+        <div className="ml-auto flex items-center gap-2">
+          <Select value={language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-[80px]">
+              <SelectValue placeholder={t.language} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ru">RU</SelectItem>
+              <SelectItem value="uz">UZ</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon" onClick={toggleTheme}>
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            {t.logout}
+          </Button>
         </div>
-      </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-72">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:max-w-xs pt-16">
-              {navContent}
-            </SheetContent>
-          </Sheet>
-          <div className="relative ml-auto flex-1 md:grow-0">
-          </div>
-          <div className="flex items-center gap-2">
-            <Select value={language} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="w-[80px]">
-                <SelectValue placeholder={t.language} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ru">RU</SelectItem>
-                <SelectItem value="uz">UZ</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon" onClick={toggleTheme}>
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              {t.logout}
-            </Button>
-          </div>
-        </header>
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-          {children}
-        </main>
-      </div>
+      </header>
+      <main className="flex-1 gap-4 p-4 sm:px-6 sm:py-6 md:gap-8">
+        {children}
+      </main>
     </div>
   );
 }

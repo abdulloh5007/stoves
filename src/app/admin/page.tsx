@@ -1,58 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ru from '@/locales/ru.json';
-import uz from '@/locales/uz.json';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
-const translations = { ru, uz };
-
-export default function AdminDashboard() {
-  const [language, setLanguage] = useState('ru');
+// This page will just redirect to the default requests page.
+export default function AdminRootPage() {
+  const router = useRouter();
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('language') || 'ru';
-    setLanguage(savedLang);
-  }, []);
-
-  const t = translations[language as keyof typeof translations].admin;
-
-  // Dummy data
-  const stats = {
-    totalApplications: 125,
-    totalBoilers: 12,
-    newApplications: 5,
-  };
+    router.replace('/admin/requests');
+  }, [router]);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">{t.welcome}</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.totalApplications}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.totalApplications}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.totalBoilers}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.totalBoilers}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.newApplications}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.newApplications}</p>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="flex h-full w-full items-center justify-center">
+      <Loader2 className="h-16 w-16 animate-spin text-primary" />
     </div>
   );
 }
