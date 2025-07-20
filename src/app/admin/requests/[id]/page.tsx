@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar, User, Phone, Tag, Home, Save, CheckCircle, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 
 // Helper to format numbers with spaces
 const formatPrice = (priceString: string) => {
