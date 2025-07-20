@@ -25,6 +25,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Moon, Sun } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Boiler type definition
 interface Boiler {
@@ -142,9 +149,10 @@ export default function Home() {
   const t = translations[language as keyof typeof translations];
 
   useEffect(() => {
-    // Check for saved theme in localStorage or default to 'dark'
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
+    const savedLang = localStorage.getItem('language') || 'ru';
+    setLanguage(savedLang);
   }, []);
 
   useEffect(() => {
@@ -157,6 +165,11 @@ export default function Home() {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
+  
+  const handleLanguageChange = (lang: string) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -199,24 +212,15 @@ export default function Home() {
       <header className="container mx-auto py-4 px-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-foreground">{t.siteTitle}</h1>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
-            <Button
-              variant={language === 'ru' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setLanguage('ru')}
-              className="px-3"
-            >
-              RU
-            </Button>
-            <Button
-              variant={language === 'uz' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setLanguage('uz')}
-              className="px-3"
-            >
-              UZ
-            </Button>
-          </div>
+          <Select value={language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-[80px]">
+              <SelectValue placeholder="Язык" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ru">RU</SelectItem>
+              <SelectItem value="uz">UZ</SelectItem>
+            </SelectContent>
+          </Select>
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
