@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,9 +49,9 @@ const adminTranslations = {
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
@@ -59,7 +59,6 @@ export default function AdminLayout({
   
   const router = useRouter();
   const pathname = usePathname();
-  const t = adminTranslations[language as keyof typeof adminTranslations];
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -67,16 +66,16 @@ export default function AdminLayout({
         router.push('/admin/login');
       } else {
         setUser(currentUser);
+        setLoading(false);
       }
-      setLoading(false);
     });
     return () => unsubscribe();
   }, [router]);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
     setTheme(savedTheme);
-    const savedLang = localStorage.getItem('language') || 'ru';
+    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('language') || 'ru' : 'ru';
     setLanguage(savedLang);
   }, []);
 
@@ -105,7 +104,9 @@ export default function AdminLayout({
     router.push('/admin/login');
   };
 
-  const NavLink = ({ href, icon, text }: { href: string, icon: React.ReactNode, text: string }) => (
+  const t = adminTranslations[language as keyof typeof adminTranslations];
+
+  const NavLink = ({ href, icon, text }: { href: string, icon: ReactNode, text: string }) => (
     <Link href={href} passHref>
       <Button
         variant={pathname === href ? 'secondary' : 'ghost'}
@@ -120,14 +121,14 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!user) {
-    return null; // or a login page redirect
+    return null;
   }
 
   return (
