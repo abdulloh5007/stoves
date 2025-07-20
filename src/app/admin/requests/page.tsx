@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 const t = uz.requests;
 
@@ -45,6 +47,63 @@ const formatPrice = (priceString: string) => {
 };
 
 type ViewMode = 'table' | 'card';
+
+const TableViewSkeleton = () => (
+    <Card>
+        <CardContent className="p-0">
+            <div className="overflow-x-auto">
+                <Table className="min-w-[1024px]">
+                    <TableHeader>
+                        <TableRow>
+                            {[...Array(6)].map((_, i) => (
+                                <TableHead key={i}><Skeleton className="h-5 w-20" /></TableHead>
+                            ))}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {[...Array(5)].map((_, i) => (
+                            <TableRow key={i}>
+                                <TableCell><Skeleton className="h-5 w-12" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </CardContent>
+    </Card>
+);
+
+const CardViewSkeleton = () => (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+            <Card key={i}>
+                <CardHeader>
+                    <CardTitle className="text-base flex justify-between items-center">
+                        <Skeleton className="h-5 w-3/5" />
+                        <Skeleton className="h-6 w-1/4 rounded-full" />
+                    </CardTitle>
+                    <Skeleton className="h-4 w-2/5" />
+                </CardHeader>
+                <CardContent className="grid gap-2 text-sm">
+                    <div className="flex justify-between">
+                        <Skeleton className="h-4 w-1/3" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </div>
+                     <div className="flex justify-between">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-4 w-1/3" />
+                    </div>
+                </CardContent>
+            </Card>
+        ))}
+    </div>
+);
+
 
 export default function RequestsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
@@ -85,14 +144,6 @@ export default function RequestsPage() {
       router.push(`/admin/requests/${id}`);
   };
   
-  if (loading) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const TableView = () => (
     <Card>
         <CardContent className="p-0">
@@ -199,7 +250,9 @@ export default function RequestsPage() {
             </div>
         </div>
         
-        {requests.length === 0 && !loading ? (
+        {loading ? (
+            viewMode === 'table' ? <TableViewSkeleton /> : <CardViewSkeleton />
+        ) : requests.length === 0 ? (
             <Card>
                 <CardContent className="p-6 text-center text-muted-foreground">
                     Hozircha arizalar yo'q.

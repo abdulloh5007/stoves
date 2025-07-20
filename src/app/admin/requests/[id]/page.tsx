@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import type { Request } from '../page';
 import { statusMap } from '../page';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formatPrice = (priceString: string) => {
     if (!priceString) return '';
@@ -29,6 +30,65 @@ const formatDate = (timestamp: { seconds: number; nanoseconds: number; } | null 
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
   return date.toLocaleDateString('uz-UZ', options);
 };
+
+const RequestDetailSkeleton = () => (
+    <div className="container mx-auto max-w-4xl">
+        <div className="grid md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+                 <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-start">
+                           <div className="flex items-center gap-4">
+                                <Skeleton className="h-8 w-8 rounded-md" />
+                                <div>
+                                    <Skeleton className="h-7 w-48 mb-2" />
+                                    <Skeleton className="h-4 w-32" />
+                                </div>
+                           </div>
+                           <Skeleton className="h-6 w-24 rounded-full" />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="grid gap-6">
+                        <Separator />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="flex items-center gap-3">
+                                    <Skeleton className="h-5 w-5 rounded" />
+                                    <div>
+                                        <Skeleton className="h-4 w-20 mb-1" />
+                                        <Skeleton className="h-5 w-28" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                         <Separator />
+                        <div>
+                            <Label htmlFor="address" className="flex items-center gap-2 mb-2 text-base">
+                                <Home className="h-5 w-5" />
+                                Mijoz manzili
+                            </Label>
+                            <Skeleton className="h-[100px] w-full rounded-md" />
+                            <Skeleton className="h-10 w-44 mt-3 rounded-md" />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="md:col-span-1">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Harakatlar</CardTitle>
+                        <CardDescription>Ariza holatini boshqaring</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-3">
+                        <Skeleton className="h-10 w-full rounded-md" />
+                        <Skeleton className="h-10 w-full rounded-md" />
+                        <Skeleton className="h-10 w-full rounded-md" />
+                    </CardContent>
+                 </Card>
+            </div>
+        </div>
+    </div>
+);
 
 export default function RequestDetailPage() {
   const params = useParams();
@@ -102,11 +162,7 @@ export default function RequestDetailPage() {
   };
 
   if (loading) {
-    return (
-        <div className="flex h-full w-full items-center justify-center">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    );
+    return <RequestDetailSkeleton />;
   }
 
   if (!request) {
