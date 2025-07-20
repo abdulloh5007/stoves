@@ -1,43 +1,113 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { fakeRequests, statusMap } from '../page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, User, Phone, Tag, Home, Save, CheckCircle, Zap, ArrowLeft, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { Calendar, User, Phone, Tag, Home, Save, CheckCircle, Zap, ArrowLeft, XCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import type { Request } from '../page';
+import { statusMap } from '../page';
 
-// Helper to format numbers with spaces
 const formatPrice = (priceString: string) => {
-    const numberPart = parseInt(priceString, 10);
+    if (!priceString) return '';
+    const numberPart = parseInt(priceString.replace(/\s/g, ''), 10);
     if (isNaN(numberPart)) return priceString;
     const formattedNumber = numberPart.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     return `${formattedNumber} UZS`;
 };
 
-// Helper to format date
-const formatDate = (dateString: string) => {
+const formatDate = (timestamp: { seconds: number; nanoseconds: number; } | null | undefined) => {
+  if (!timestamp) return 'Noma\'lum sana';
+  const date = new Date(timestamp.seconds * 1000);
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return new Date(dateString).toLocaleDateString('uz-UZ', options);
+  return date.toLocaleDateString('uz-UZ', options);
 };
 
 export default function RequestDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const id = params.id;
+  const id = params.id as string;
   
-  const request = fakeRequests.find((r) => r.id.toString() === id);
-  
-  const [currentStatus, setCurrentStatus] = useState(request?.status || 'new');
-  const [address, setAddress] = useState(request?.address || '');
+  const [request, setRequest] = useState<Request | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [address, setAddress] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    const docRef = doc(db, 'requests', id);
+    
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = { id: docSnap.id, ...docSnap.data() } as Request;
+        setRequest(data);
+        setAddress(data.address || '');
+      } else {
+        console.log("No such document!");
+        setRequest(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [id]);
+
+  const handleStatusChange = useCallback(async (newStatus: 'contacted' | 'done' | 'cancelled') => {
+    if (!id) return;
+    const docRef = doc(db, 'requests', id);
+    try {
+        await updateDoc(docRef, { status: newStatus });
+        toast({
+            title: "Holat o'zgartirildi!",
+            description: `Arizaning yangi holati: ${statusMap[newStatus].text}`,
+        });
+    } catch (error) {
+        console.error("Error updating status: ", error);
+        toast({
+            title: "Xatolik",
+            description: "Holatni o'zgartirishda xatolik yuz berdi.",
+            variant: "destructive"
+        });
+    }
+  }, [id, toast]);
+
+  const handleAddressSave = async () => {
+    if (!id) return;
+    setIsSaving(true);
+    const docRef = doc(db, 'requests', id);
+    try {
+        await updateDoc(docRef, { address: address });
+        toast({
+            title: "Manzil saqlandi!",
+            description: "Mijoz manzili muvaffaqiyatli saqlandi.",
+        });
+    } catch (error) {
+        console.error("Error saving address: ", error);
+        toast({
+            title: "Xatolik",
+            description: "Manzilni saqlashda xatolik yuz berdi.",
+            variant: "destructive"
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+        <div className="flex h-full w-full items-center justify-center">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    );
+  }
 
   if (!request) {
     return (
@@ -52,23 +122,7 @@ export default function RequestDetailPage() {
     );
   }
   
-  const handleStatusChange = (newStatus: 'contacted' | 'done' | 'cancelled') => {
-    setCurrentStatus(newStatus);
-    toast({
-        title: "Holat o'zgartirildi!",
-        description: `Arizaning yangi holati: ${statusMap[newStatus].text}`,
-    });
-  };
-
-  const handleAddressSave = () => {
-    // Here you would typically save the address to your database
-    console.log("Saving address:", address);
-    toast({
-        title: "Manzil saqlandi!",
-        description: "Mijoz manzili muvaffaqiyatli saqlandi.",
-    });
-  };
-
+  const currentStatus = request.status;
 
   return (
     <div className="container mx-auto max-w-4xl">
@@ -83,7 +137,7 @@ export default function RequestDetailPage() {
                                 </Button>
                                 <div>
                                     <CardTitle className="text-2xl">{request.boilerName}</CardTitle>
-                                    <CardDescription>Ariza #{request.id}</CardDescription>
+                                    <CardDescription>Ariza ...{request.id.slice(-5)}</CardDescription>
                                 </div>
                            </div>
                            <Badge className={cn("text-sm", statusMap[currentStatus as keyof typeof statusMap].className)}>
@@ -119,7 +173,7 @@ export default function RequestDetailPage() {
                                 <Calendar className="h-5 w-5 text-muted-foreground" />
                                 <div>
                                     <p className="text-muted-foreground">Ariza sanasi</p>
-                                    <p className="font-semibold">{formatDate(request.date)}</p>
+                                    <p className="font-semibold">{formatDate(request.createdAt)}</p>
                                 </div>
                             </div>
                         </div>
@@ -135,9 +189,10 @@ export default function RequestDetailPage() {
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
                                 className="min-h-[100px]"
+                                disabled={isSaving}
                             />
-                             <Button onClick={handleAddressSave} className="mt-3">
-                                <Save className="mr-2 h-4 w-4" />
+                             <Button onClick={handleAddressSave} className="mt-3" disabled={isSaving}>
+                                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                 Manzilni saqlash
                             </Button>
                         </div>

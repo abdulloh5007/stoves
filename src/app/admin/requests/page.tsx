@@ -6,32 +6,39 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import uz from '@/locales/uz.json';
-import { List, LayoutGrid } from 'lucide-react';
+import { List, LayoutGrid, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 const t = uz.requests;
 
-// Mock data for requests
-export const fakeRequests = [
-  { id: 1, boilerName: 'Котел "Теплодар-1"', customerName: 'Иван Иванов', phone: '+998 90 123-45-67', offeredPrice: '145000', status: 'new' as const, date: '2024-07-28T10:00:00Z', address: '' },
-  { id: 2, boilerName: 'Котел "Пламя-2"', customerName: 'Алишер Усманов', phone: '+998 91 234-56-78', offeredPrice: '220000', status: 'contacted' as const, date: '2024-07-28T11:30:00Z', address: 'Toshkent, Amir Temur ko\'chasi, 1' },
-  { id: 3, boilerName: 'Котел "Уют-3"', customerName: 'Елена Петрова', phone: '+998 93 345-67-89', offeredPrice: '180000', status: 'done' as const, date: '2024-07-27T15:00:00Z', address: '' },
-  { id: 4, boilerName: 'Котел "Гигант-4"', customerName: 'Сардор Камилов', phone: '+998 94 456-78-90', offeredPrice: '300000', status: 'new' as const, date: '2024-07-26T09:00:00Z', address: '' },
-  { id: 5, boilerName: 'Котел "Теплодар-1"', customerName: 'Ольга Сидорова', phone: '+998 99 567-89-01', offeredPrice: '150000', status: 'new' as const, date: '2024-07-25T18:45:00Z', address: '' },
-];
+export interface Request {
+  id: string;
+  boilerName: string;
+  customerName: string;
+  phone: string;
+  offeredPrice: string;
+  status: 'new' | 'contacted' | 'done' | 'cancelled';
+  createdAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  address: string;
+}
 
 export const statusMap = {
-  new: { text: 'Yangi', variant: 'destructive' as const, className: 'bg-blue-500 text-white' },
-  contacted: { text: 'Aloqaga chiqildi', variant: 'secondary' as const, className: 'bg-yellow-500 text-black' },
-  done: { text: 'Bajarildi', variant: 'default' as const, className: 'bg-green-500 text-white' },
-  cancelled: { text: 'Otmenen', variant: 'destructive' as const, className: 'bg-gray-600 text-white' },
+  new: { text: 'Yangi', className: 'bg-blue-500 text-white' },
+  contacted: { text: 'Aloqaga chiqildi', className: 'bg-yellow-500 text-black' },
+  done: { text: 'Bajarildi', className: 'bg-green-500 text-white' },
+  cancelled: { text: 'Otmenen', className: 'bg-gray-600 text-white' },
 };
 
-// Helper to format numbers with spaces
 const formatPrice = (priceString: string) => {
-    const numberPart = parseInt(priceString, 10);
+    if (!priceString) return '';
+    const numberPart = parseInt(priceString.replace(/\s/g, ''), 10);
     if (isNaN(numberPart)) return priceString;
     const formattedNumber = numberPart.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     return `${formattedNumber} UZS`;
@@ -42,12 +49,14 @@ type ViewMode = 'table' | 'card';
 export default function RequestsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [isClient, setIsClient] = useState(false);
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
     const savedViewMode = localStorage.getItem('requestsViewMode') as ViewMode;
-    if (savedViewMode) {
+    if (savedViewMode && ['table', 'card'].includes(savedViewMode)) {
       setViewMode(savedViewMode);
     }
   }, []);
@@ -58,10 +67,31 @@ export default function RequestsPage() {
     }
   }, [viewMode, isClient]);
 
+  useEffect(() => {
+    const q = query(collection(db, "requests"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const requestsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Request));
+      setRequests(requestsData);
+      setLoading(false);
+    }, (error) => {
+        console.error("Error fetching requests: ", error);
+        setLoading(false);
+    });
 
-  const handleRowClick = (id: number) => {
+    return () => unsubscribe();
+  }, []);
+
+  const handleRowClick = (id: string) => {
       router.push(`/admin/requests/${id}`);
   };
+  
+  if (loading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const TableView = () => (
     <Card>
@@ -79,9 +109,9 @@ export default function RequestsPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {fakeRequests.map((request) => (
+                        {requests.map((request) => (
                             <TableRow key={request.id} onClick={() => handleRowClick(request.id)} className="cursor-pointer">
-                                <TableCell>{request.id}</TableCell>
+                                <TableCell className="font-mono text-xs">...{request.id.slice(-5)}</TableCell>
                                 <TableCell>{request.boilerName}</TableCell>
                                 <TableCell>{request.customerName}</TableCell>
                                 <TableCell>{request.phone}</TableCell>
@@ -100,10 +130,9 @@ export default function RequestsPage() {
     </Card>
 );
 
-
   const CardView = () => (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {fakeRequests.map((request) => (
+        {requests.map((request) => (
             <Link href={`/admin/requests/${request.id}`} key={request.id} passHref>
               <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                   <CardHeader>
@@ -132,7 +161,11 @@ export default function RequestsPage() {
   );
 
   if (!isClient) {
-    return null; // or a loading spinner
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -166,8 +199,13 @@ export default function RequestsPage() {
             </div>
         </div>
         
-        {viewMode === 'table' ? <TableView /> : <CardView />}
-
+        {requests.length === 0 && !loading ? (
+            <Card>
+                <CardContent className="p-6 text-center text-muted-foreground">
+                    Hozircha arizalar yo'q.
+                </CardContent>
+            </Card>
+        ) : viewMode === 'table' ? <TableView /> : <CardView />}
     </div>
   );
 }

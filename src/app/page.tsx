@@ -27,6 +27,10 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Moon, Sun, UserCog } from 'lucide-react';
 import uz from '@/locales/uz.json';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 const t = uz.home;
 
@@ -39,38 +43,6 @@ interface Boiler {
   imageUrl: string;
 }
 
-// Mock data for boilers
-const fakeBoilers: Boiler[] = [
-  {
-    id: 'boiler-1',
-    name: '"Teplodar-1" qozoni',
-    price: 150000,
-    description: 'Uyingiz uchun ishonchli va samarali ko\'mirli qozon.',
-    imageUrl: 'https://placehold.co/600x400.png',
-  },
-  {
-    id: 'boiler-2',
-    name: '"Plamya-2" qozoni',
-    price: 220000,
-    description: 'Yuqori samaradorlik va avtomatikaga ega zamonaviy gaz qozoni.',
-    imageUrl: 'https://placehold.co/600x400.png',
-  },
-  {
-    id: 'boiler-3',
-    name: '"Uyut-3" qozoni',
-    price: 185000,
-    description: 'Kichik xonalar uchun ideal bo\'lgan ixcham elektr qozon.',
-    imageUrl: 'https://placehold.co/600x400.png',
-  },
-  {
-    id: 'boiler-4',
-    name: '"Gigant-4" qozoni',
-    price: 310000,
-    description: 'Katta maydonlarni isitish uchun kuchli sanoat qozoni.',
-    imageUrl: 'https://placehold.co/600x400.png',
-  },
-];
-
 // Helper to format numbers with spaces
 const formatPrice = (price: number | string) => {
   const num = typeof price === 'string' ? parseFloat(price.replace(/\s/g, '')) : price;
@@ -79,11 +51,13 @@ const formatPrice = (price: number | string) => {
 };
 
 export default function Home() {
+  const [boilers, setBoilers] = useState<Boiler[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const [selectedBoiler, setSelectedBoiler] = useState<Boiler | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+998 ');
   const [offeredPrice, setOfferedPrice] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const [theme, setTheme] = useState('dark');
@@ -103,6 +77,29 @@ export default function Home() {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
+  
+  useEffect(() => {
+    const fetchBoilers = async () => {
+        setDataLoading(true);
+        try {
+            const boilersCollection = collection(db, 'boilers');
+            const boilerSnapshot = await getDocs(boilersCollection);
+            const boilersList = boilerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Boiler));
+            setBoilers(boilersList);
+        } catch (error) {
+            console.error("Error fetching boilers: ", error);
+            toast({
+                title: "Xatolik",
+                description: "Katalog yuklanmadi. Iltimos, keyinroq qayta urinib ko'ring.",
+                variant: "destructive"
+            });
+        } finally {
+            setDataLoading(false);
+        }
+    };
+
+    fetchBoilers();
+  }, [toast]);
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -130,48 +127,63 @@ export default function Home() {
       formatted += `-${rawValue.substring(10, 12)}`;
     }
 
-    // Prevent user from deleting the prefix
     if (e.target.value.length < 5) {
        setPhone('+998 ');
        return;
     }
 
-    setPhone(formatted.slice(0, 19)); // Max length for +998 (xx) xxx-xx-xx
+    setPhone(formatted.slice(0, 19));
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\s/g, '');
-    if (/^\d*$/.test(rawValue)) { // only allow digits
+    if (/^\d*$/.test(rawValue)) {
       setOfferedPrice(formatPrice(rawValue));
     }
   };
 
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // TODO: Implement Firestore submission here
-    console.log({
-      boilerId: selectedBoiler?.id,
-      name,
-      phone,
-      offeredPrice: offeredPrice.replace(/\s/g, ''), // Send raw number
-    });
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-    toast({
-      title: t.successToastTitle,
-      description: t.successToastDescription,
-    });
-    setIsDialogOpen(false); // Close dialog on success
-    // Reset form fields
+  const resetForm = () => {
     setName('');
     setPhone('+998 ');
     setOfferedPrice('');
+    setSelectedBoiler(null);
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBoiler) return;
+    setIsSubmitting(true);
+
+    try {
+        const requestsCollection = collection(db, 'requests');
+        await addDoc(requestsCollection, {
+            boilerId: selectedBoiler.id,
+            boilerName: selectedBoiler.name,
+            customerName: name,
+            phone,
+            offeredPrice: offeredPrice.replace(/\s/g, ''),
+            status: 'new',
+            createdAt: serverTimestamp(),
+            address: ''
+        });
+        
+        toast({
+            title: t.successToastTitle,
+            description: t.successToastDescription,
+        });
+        setIsDialogOpen(false);
+        resetForm();
+
+    } catch (error) {
+        console.error("Error submitting request: ", error);
+        toast({
+            title: "Xatolik",
+            description: "Arizangiz yuborilmadi. Iltimos, qayta urinib ko'ring.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -196,34 +208,51 @@ export default function Home() {
         <p className="text-lg text-muted-foreground mt-2 mb-8">{t.siteDescription}</p>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {fakeBoilers.map((boiler) => (
-              <Card key={boiler.id} className="flex flex-col overflow-hidden">
-                <CardHeader className="p-0">
-                  <Image
-                    src={boiler.imageUrl}
-                    alt={boiler.name}
-                    width={600}
-                    height={400}
-                    className="object-cover w-full h-48"
-                    data-ai-hint="boiler heater"
-                  />
-                </CardHeader>
-                <CardContent className="p-4 flex-grow">
-                  <CardTitle className="text-xl mb-2">{boiler.name}</CardTitle>
-                  <CardDescription className="text-base text-muted-foreground">
-                    {boiler.description}
-                  </CardDescription>
-                </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center">
-                  <p className="text-2xl font-semibold text-primary">
-                    {formatPrice(boiler.price)} UZS
-                  </p>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => handleBuyClick(boiler)}>{t.buyButton}</Button>
-                  </DialogTrigger>
-                </CardFooter>
-              </Card>
-            ))}
+            {dataLoading ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                    <Card key={index} className="flex flex-col overflow-hidden">
+                        <Skeleton className="h-48 w-full" />
+                        <CardContent className="p-4 flex-grow">
+                            <Skeleton className="h-6 w-3/4 mb-2" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-full mt-1" />
+                        </CardContent>
+                        <CardFooter className="p-4 flex justify-between items-center">
+                            <Skeleton className="h-8 w-1/3" />
+                            <Skeleton className="h-10 w-1/4" />
+                        </CardFooter>
+                    </Card>
+                ))
+            ) : (
+                boilers.map((boiler) => (
+                <Card key={boiler.id} className="flex flex-col overflow-hidden">
+                    <CardHeader className="p-0">
+                    <Image
+                        src={boiler.imageUrl || 'https://placehold.co/600x400.png'}
+                        alt={boiler.name}
+                        width={600}
+                        height={400}
+                        className="object-cover w-full h-48"
+                        data-ai-hint="boiler heater"
+                    />
+                    </CardHeader>
+                    <CardContent className="p-4 flex-grow">
+                    <CardTitle className="text-xl mb-2">{boiler.name}</CardTitle>
+                    <CardDescription className="text-base text-muted-foreground">
+                        {boiler.description}
+                    </CardDescription>
+                    </CardContent>
+                    <CardFooter className="p-4 flex justify-between items-center">
+                    <p className="text-2xl font-semibold text-primary">
+                        {formatPrice(boiler.price)} UZS
+                    </p>
+                    <DialogTrigger asChild>
+                        <Button onClick={() => handleBuyClick(boiler)}>{t.buyButton}</Button>
+                    </DialogTrigger>
+                    </CardFooter>
+                </Card>
+                ))
+            )}
           </div>
 
           {selectedBoiler && (
@@ -245,7 +274,7 @@ export default function Home() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -257,7 +286,7 @@ export default function Home() {
                       value={phone}
                       onChange={handlePhoneChange}
                       required
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -271,19 +300,19 @@ export default function Home() {
                       required
                       type="text"
                       inputMode="numeric"
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                       placeholder='100 000'
                     />
                   </div>
                 </div>
                 <DialogFooter>
                    <DialogClose asChild>
-                     <Button type="button" variant="secondary" disabled={isLoading}>
+                     <Button type="button" variant="secondary" disabled={isSubmitting}>
                       {t.cancelButton}
                     </Button>
                   </DialogClose>
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {t.submitButton}
                   </Button>
                 </DialogFooter>
