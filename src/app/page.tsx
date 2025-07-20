@@ -72,14 +72,16 @@ const fakeBoilers: Boiler[] = [
 ];
 
 // Helper to format numbers with spaces
-const formatPrice = (price: number) => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const formatPrice = (price: number | string) => {
+  const num = typeof price === 'string' ? parseFloat(price.replace(/\s/g, '')) : price;
+  if (isNaN(num)) return '';
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
 
 export default function Home() {
   const [selectedBoiler, setSelectedBoiler] = useState<Boiler | null>(null);
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState('+998 ');
   const [offeredPrice, setOfferedPrice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -111,6 +113,40 @@ export default function Home() {
     setIsDialogOpen(true);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    let formatted = '+998 ';
+    
+    if (rawValue.length > 3) {
+      formatted += `(${rawValue.substring(3, 5)}`;
+    }
+    if (rawValue.length >= 6) {
+      formatted += `) ${rawValue.substring(5, 8)}`;
+    }
+    if (rawValue.length >= 9) {
+      formatted += `-${rawValue.substring(8, 10)}`;
+    }
+     if (rawValue.length >= 11) {
+      formatted += `-${rawValue.substring(10, 12)}`;
+    }
+
+    // Prevent user from deleting the prefix
+    if (e.target.value.length < 5) {
+       setPhone('+998 ');
+       return;
+    }
+
+    setPhone(formatted.slice(0, 19)); // Max length for +998 (xx) xxx-xx-xx
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\s/g, '');
+    if (/^\d*$/.test(rawValue)) { // only allow digits
+      setOfferedPrice(formatPrice(rawValue));
+    }
+  };
+
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -120,7 +156,7 @@ export default function Home() {
       boilerId: selectedBoiler?.id,
       name,
       phone,
-      offeredPrice,
+      offeredPrice: offeredPrice.replace(/\s/g, ''), // Send raw number
     });
 
     // Simulate API call
@@ -134,7 +170,7 @@ export default function Home() {
     setIsDialogOpen(false); // Close dialog on success
     // Reset form fields
     setName('');
-    setPhone('');
+    setPhone('+998 ');
     setOfferedPrice('');
   };
 
@@ -200,45 +236,43 @@ export default function Home() {
               </DialogHeader>
               <form onSubmit={handleFormSubmit}>
                 <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="name">
                       {t.nameLabel}
                     </Label>
                     <Input
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="col-span-3"
                       required
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phone" className="text-right">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="phone">
                       {t.phoneLabel}
                     </Label>
                     <Input
                       id="phone"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+998 (xx) xxx-xx-xx"
-                      className="col-span-3"
+                      onChange={handlePhoneChange}
                       required
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="offeredPrice" className="text-right">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="offeredPrice">
                       {t.priceLabel}
                     </Label>
                     <Input
                       id="offeredPrice"
                       value={offeredPrice}
-                      onChange={(e) => setOfferedPrice(e.target.value)}
-                      className="col-span-3"
+                      onChange={handlePriceChange}
                       required
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       disabled={isLoading}
+                      placeholder='100 000'
                     />
                   </div>
                 </div>
