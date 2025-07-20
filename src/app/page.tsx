@@ -217,9 +217,9 @@ export default function Home() {
                             <Skeleton className="h-4 w-full" />
                             <Skeleton className="h-4 w-full mt-1" />
                         </CardContent>
-                        <CardFooter className="p-4 flex justify-between items-center">
+                        <CardFooter className="p-4 flex flex-col items-start gap-4">
                             <Skeleton className="h-8 w-1/3" />
-                            <Skeleton className="h-10 w-1/4" />
+                            <Skeleton className="h-10 w-full" />
                         </CardFooter>
                     </Card>
                 ))
@@ -242,12 +242,12 @@ export default function Home() {
                         {boiler.description}
                     </CardDescription>
                     </CardContent>
-                    <CardFooter className="p-4 flex justify-between items-center">
+                    <CardFooter className="p-4 mt-auto flex flex-col items-start w-full gap-4">
                         <p className="text-2xl font-semibold text-primary">
                             {formatPrice(boiler.price)} UZS
                         </p>
                         <DialogTrigger asChild>
-                            <Button onClick={() => handleBuyClick(boiler)}>{t.buyButton}</Button>
+                            <Button onClick={() => handleBuyClick(boiler)} className="w-full">{t.buyButton}</Button>
                         </DialogTrigger>
                     </CardFooter>
                 </Card>
