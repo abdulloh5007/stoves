@@ -243,12 +243,12 @@ export default function Home() {
                     </CardDescription>
                     </CardContent>
                     <CardFooter className="p-4 flex justify-between items-center">
-                    <p className="text-2xl font-semibold text-primary">
-                        {formatPrice(boiler.price)} UZS
-                    </p>
-                    <DialogTrigger asChild>
-                        <Button onClick={() => handleBuyClick(boiler)}>{t.buyButton}</Button>
-                    </DialogTrigger>
+                        <p className="text-2xl font-semibold text-primary">
+                            {formatPrice(boiler.price)} UZS
+                        </p>
+                        <DialogTrigger asChild>
+                            <Button onClick={() => handleBuyClick(boiler)}>{t.buyButton}</Button>
+                        </DialogTrigger>
                     </CardFooter>
                 </Card>
                 ))
