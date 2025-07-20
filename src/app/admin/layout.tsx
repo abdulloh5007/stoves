@@ -21,23 +21,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-      document.documentElement.style.colorScheme = savedTheme;
+    // This effect runs only on the client
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    document.documentElement.style.colorScheme = savedTheme;
 
-      const loggedInStatus = sessionStorage.getItem('isLoggedIn') === 'true';
-      setIsLoggedIn(loggedInStatus);
-      setLoading(false);
+    const loggedInStatus = sessionStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedInStatus);
+    setLoading(false);
 
-      if (!loggedInStatus && pathname !== '/admin/login') {
-        router.push('/admin/login');
-      }
+    if (!loggedInStatus && pathname !== '/admin/login') {
+      router.push('/admin/login');
+    }
 
-      if (loggedInStatus && pathname === '/admin') {
-        router.push('/admin/requests');
-      }
+    if (loggedInStatus && pathname === '/admin') {
+      router.push('/admin/requests');
     }
   }, [pathname, router]);
 
@@ -85,7 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
            <div className="grid grid-cols-2 gap-4">
              <Link href="/admin/requests" passHref onClick={handleLinkClick}>
               <Card className={cn("hover:bg-accent cursor-pointer", {
-                  "bg-primary text-primary-foreground hover:bg-primary/90": pathname === '/admin/requests',
+                  "bg-primary text-primary-foreground hover:bg-primary/90": pathname === '/admin/requests' || pathname.startsWith('/admin/requests/'),
               })}>
                 <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
                   <List className="h-8 w-8 mb-2" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +40,23 @@ type ViewMode = 'table' | 'card';
 
 export default function RequestsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true);
+    const savedViewMode = localStorage.getItem('requestsViewMode') as ViewMode;
+    if (savedViewMode) {
+      setViewMode(savedViewMode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if(isClient) {
+      localStorage.setItem('requestsViewMode', viewMode);
+    }
+  }, [viewMode, isClient]);
+
 
   const handleRowClick = (id: number) => {
       router.push(`/admin/requests/${id}`);
@@ -114,6 +130,10 @@ export default function RequestsPage() {
     </div>
   );
 
+  if (!isClient) {
+    return null; // or a loading spinner
+  }
+
   return (
     <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
@@ -121,7 +141,7 @@ export default function RequestsPage() {
                 <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
                 <p className="text-muted-foreground">{t.description}</p>
             </div>
-            <div className="flex items-center gap-2 rounded-md bg-muted p-1">
+            <div className="hidden md:flex items-center gap-2 rounded-md bg-muted p-1">
                 <Button
                     variant={viewMode === 'table' ? 'default' : 'ghost'}
                     size="icon"
