@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Moon, Sun } from 'lucide-react';
+import { Loader2, Moon, Sun, UserCog } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -118,6 +119,7 @@ const translations = {
     submitButton: 'Отправить',
     successToastTitle: 'Успешно!',
     successToastDescription: 'Ваша заявка отправлена!',
+    adminLogin: 'Вход для админа',
   },
   uz: {
     siteTitle: 'Qozonlar savdosi',
@@ -132,6 +134,7 @@ const translations = {
     submitButton: 'Yuborish',
     successToastTitle: 'Muvaffaqiyatli!',
     successToastDescription: 'Sizning arizangiz yuborildi!',
+    adminLogin: 'Admin uchun kirish',
   },
 };
 
@@ -149,9 +152,9 @@ export default function Home() {
   const t = translations[language as keyof typeof translations];
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
     setTheme(savedTheme);
-    const savedLang = localStorage.getItem('language') || 'ru';
+    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('language') || 'ru' : 'ru';
     setLanguage(savedLang);
   }, []);
 
@@ -226,6 +229,12 @@ export default function Home() {
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
+          <Link href="/admin/login" passHref>
+             <Button variant="outline" size="sm">
+                <UserCog className="mr-2 h-4 w-4" />
+                {t.adminLogin}
+             </Button>
+          </Link>
         </div>
       </header>
       <main className="container mx-auto p-4">

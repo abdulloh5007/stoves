@@ -27,6 +27,7 @@ import {
   Loader2,
   Moon,
   Sun,
+  Flame,
 } from 'lucide-react';
 
 const adminTranslations = {
@@ -34,15 +35,21 @@ const adminTranslations = {
     title: 'Админ-панель',
     home: 'Главная',
     applications: 'Заявки',
-    createBoiler: 'Создать котел',
-    logout: 'Выйти'
+    boilers: 'Котлы',
+    logout: 'Выйти',
+    toggleNav: 'Переключить навигацию',
+    toggleTheme: 'Переключить тему',
+    language: 'Язык'
   },
   uz: {
     title: 'Admin-panel',
     home: 'Bosh sahifa',
     applications: 'Arizalar',
-    createBoiler: 'Qozon yaratish',
-    logout: 'Chiqish'
+    boilers: 'Qozonlar',
+    logout: 'Chiqish',
+    toggleNav: 'Navigatsiyani almashtirish',
+    toggleTheme: 'Mavzuni o\'zgartirish',
+    language: 'Til'
   },
 };
 
@@ -75,28 +82,24 @@ export default function AdminLayout({
   useEffect(() => {
     const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
     setTheme(savedTheme);
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    document.documentElement.style.colorScheme = savedTheme;
+
     const savedLang = typeof window !== 'undefined' ? localStorage.getItem('language') || 'ru' : 'ru';
     setLanguage(savedLang);
   }, []);
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.colorScheme = 'dark';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.colorScheme = 'light';
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-  
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
-    localStorage.setItem('language', lang);
+    if(typeof window !== 'undefined') localStorage.setItem('language', lang);
   };
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.style.colorScheme = newTheme;
+    if(typeof window !== 'undefined') localStorage.setItem('theme', newTheme);
   };
 
   const handleLogout = async () => {
@@ -128,25 +131,25 @@ export default function AdminLayout({
   }
 
   if (!user) {
-    return null;
+    return null; // Should not happen due to the redirect, but as a safeguard.
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
         <div className="flex items-center gap-4">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle navigation menu</span>
+                <span className="sr-only">{t.toggleNav}</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium mt-8">
                 <NavLink href="/admin" icon={<Home className="mr-2 h-5 w-5" />} text={t.home} />
                 <NavLink href="/admin/applications" icon={<FileText className="mr-2 h-5 w-5" />} text={t.applications} />
-                <NavLink href="/admin/boilers" icon={<PlusSquare className="mr-2 h-5 w-5" />} text={t.createBoiler} />
+                <NavLink href="/admin/boilers" icon={<Flame className="mr-2 h-5 w-5" />} text={t.boilers} />
               </nav>
               <div className="mt-auto">
                  <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base">
@@ -161,7 +164,7 @@ export default function AdminLayout({
         <div className="flex items-center gap-4">
            <Select value={language} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-[80px]">
-              <SelectValue placeholder="Язык" />
+              <SelectValue placeholder={t.language} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ru">RU</SelectItem>
@@ -171,16 +174,16 @@ export default function AdminLayout({
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
+            <span className="sr-only">{t.toggleTheme}</span>
           </Button>
         </div>
       </header>
       <div className="flex">
-        <aside className="hidden md:flex md:flex-col md:w-64 md:border-r md:bg-muted/40">
+        <aside className="hidden md:flex md:flex-col md:w-64 md:border-r md:bg-card">
            <nav className="flex flex-col gap-2 p-4 text-lg font-medium">
               <NavLink href="/admin" icon={<Home className="mr-2 h-5 w-5" />} text={t.home} />
               <NavLink href="/admin/applications" icon={<FileText className="mr-2 h-5 w-5" />} text={t.applications} />
-              <NavLink href="/admin/boilers" icon={<PlusSquare className="mr-2 h-5 w-5" />} text={t.createBoiler} />
+              <NavLink href="/admin/boilers" icon={<Flame className="mr-2 h-5 w-5" />} text={t.boilers} />
            </nav>
            <div className="mt-auto p-4">
              <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base">

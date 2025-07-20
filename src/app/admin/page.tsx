@@ -2,7 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminDashboard() {
-  // You can add language state here if needed, or get it from a global context
   const t = {
     home: 'Главная',
     applications: 'Заявки',

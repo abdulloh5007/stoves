@@ -39,10 +39,18 @@ export default function AdminLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+        toast({
+            variant: 'destructive',
+            title: 'Ошибка',
+            description: 'Пожалуйста, введите email и пароль.',
+        });
+        return;
+    }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/admin');
+      // The onAuthStateChanged listener will handle the redirect
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -69,7 +77,7 @@ export default function AdminLoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl">Вход в админ-панель</CardTitle>
           <CardDescription>
-            Пожалуйста, введите email и пароль администратора.
+            Пожалуйста, введите email и пароль для доступа.
           </CardDescription>
         </CardHeader>
         <CardContent>
