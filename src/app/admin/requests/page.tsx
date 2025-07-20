@@ -66,7 +66,7 @@ export default function RequestsPage() {
     <Card>
         <CardContent className="p-0">
             <div className="overflow-x-auto">
-                <Table className="min-w-[700px]">
+                <Table className="min-w-[800px]">
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
@@ -141,7 +141,7 @@ export default function RequestsPage() {
                 <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
                 <p className="text-muted-foreground">{t.description}</p>
             </div>
-            <div className="hidden md:flex items-center gap-2 rounded-md bg-muted p-1">
+            <div className="flex items-center gap-2 rounded-md bg-muted p-1">
                 <Button
                     variant={viewMode === 'table' ? 'default' : 'ghost'}
                     size="icon"
@@ -164,13 +164,11 @@ export default function RequestsPage() {
                 </Button>
             </div>
         </div>
+        
+        {viewMode === 'table' ? <TableView /> : <CardView />}
 
-        <div className="hidden md:block">
-            {viewMode === 'table' ? <TableView /> : <CardView />}
-        </div>
-        <div className="md:hidden">
-            <CardView />
-        </div>
     </div>
   );
 }
+
+    
