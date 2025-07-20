@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '@/lib/firebase';
 import { Loader2, LogOut, Menu, Moon, Sun, Home, List, PlusSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -11,69 +9,73 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
 
-// Import translation files
 import ru from '@/locales/ru.json';
 import uz from '@/locales/uz.json';
 
 const translations = { ru, uz };
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [user, loading] = useAuthState(auth);
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ru');
   const t = translations[language as keyof typeof translations].admin;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-        const savedLang = localStorage.getItem('language') || 'ru';
-        setLanguage(savedLang);
-    }
-  }, []);
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      document.documentElement.style.colorScheme = savedTheme;
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/admin/login');
-    }
-  }, [user, loading, router]);
+      const savedLang = localStorage.getItem('language') || 'ru';
+      setLanguage(savedLang);
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.colorScheme = 'dark';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.colorScheme = 'light';
+      const loggedInStatus = sessionStorage.getItem('isLoggedIn') === 'true';
+      setIsLoggedIn(loggedInStatus);
+      setLoading(false);
+
+      if (!loggedInStatus && pathname !== '/admin/login') {
+        router.push('/admin/login');
+      }
     }
-     if (typeof window !== 'undefined') {
-        localStorage.setItem('theme', theme);
-    }
-  }, [theme]);
-  
+  }, [pathname, router]);
+
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
-     if (typeof window !== 'undefined') {
-        localStorage.setItem('language', lang);
-    }
+    localStorage.setItem('language', lang);
   };
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.style.colorScheme = newTheme;
   };
 
-  const handleLogout = async () => {
-    await auth.signOut();
+  const handleLogout = () => {
+    sessionStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
     router.push('/admin/login');
   };
 
-  if (loading || !user) {
+  if (loading) {
     return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
+  if (!isLoggedIn) {
+     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
@@ -94,23 +96,19 @@ export default function AdminLayout({
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/applications" passHref>
-           <Card className="hover:bg-accent cursor-pointer">
+        <Card className="hover:bg-accent cursor-pointer">
             <CardContent className="flex flex-col items-center justify-center p-6">
-              <List className="h-8 w-8 mb-2" />
-              <span>{t.requests}</span>
+                <List className="h-8 w-8 mb-2" />
+                <span>{t.requests}</span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
       </div>
-      <Link href="/admin/create-boiler" passHref>
-         <Card className="hover:bg-accent cursor-pointer col-span-2">
+       <Card className="hover:bg-accent cursor-pointer col-span-2">
             <CardContent className="flex flex-col items-center justify-center p-6">
                 <PlusSquare className="h-8 w-8 mb-2" />
                 <span>{t.createBoiler}</span>
             </CardContent>
         </Card>
-      </Link>
     </nav>
   );
 
@@ -135,7 +133,6 @@ export default function AdminLayout({
             </SheetContent>
           </Sheet>
           <div className="relative ml-auto flex-1 md:grow-0">
-             {/* Header can be empty or have breadcrumbs */}
           </div>
           <div className="flex items-center gap-2">
             <Select value={language} onValueChange={handleLanguageChange}>
