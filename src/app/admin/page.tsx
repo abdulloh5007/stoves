@@ -1,34 +1,64 @@
 'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function AdminDashboard() {
-  const t = {
-    home: 'Главная',
-    applications: 'Заявки',
-    boilers: 'Котлы'
-  }
+const translations = {
+    ru: {
+      welcome: 'Добро пожаловать!',
+      stats: 'Статистика',
+      totalApplications: 'Всего заявок',
+      totalBoilers: 'Всего котлов',
+      newApplications: 'Новые заявки',
+    },
+    uz: {
+      welcome: 'Xush kelibsiz!',
+      stats: 'Statistika',
+      totalApplications: 'Jami arizalar',
+      totalBoilers: 'Jami qozonlar',
+      newApplications: 'Yangi arizalar',
+    }
+};
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">{t.home}</h1>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.applications}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">0</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.boilers}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">0</p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+export default function AdminDashboard() {
+    const language = 'ru'; // Or get from context/localstorage
+    const t = translations[language];
+
+    // Dummy data
+    const stats = {
+        totalApplications: 125,
+        totalBoilers: 12,
+        newApplications: 5,
+    };
+
+    return (
+        <div>
+            <h1 className="text-2xl font-bold mb-4">{t.welcome}</h1>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t.totalApplications}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-3xl font-bold">{stats.totalApplications}</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t.totalBoilers}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-3xl font-bold">{stats.totalBoilers}</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t.newApplications}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-3xl font-bold">{stats.newApplications}</p>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
 }

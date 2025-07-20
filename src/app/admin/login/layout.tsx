@@ -1,6 +1,9 @@
-import type { ReactNode } from 'react';
+'use client';
 
-// This layout isolates the login page from the main admin layout to prevent redirect loops.
-export default function LoginLayout({ children }: { children: ReactNode }) {
+export default function LoginLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

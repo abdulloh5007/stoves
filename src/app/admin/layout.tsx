@@ -1,54 +1,31 @@
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
+import { Loader2, LogOut, Menu, Moon, Sun, Home, List, PlusSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Menu,
-  Home,
-  FileText,
-  PlusSquare,
-  LogOut,
-  Loader2,
-  Moon,
-  Sun,
-  Flame,
-} from 'lucide-react';
+import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Card, CardContent } from '@/components/ui/card';
 
-const adminTranslations = {
+const translations = {
   ru: {
-    title: 'Админ-панель',
-    home: 'Главная',
-    applications: 'Заявки',
-    boilers: 'Котлы',
+    dashboard: 'Панель управления',
+    main: 'Главная',
+    requests: 'Заявки',
+    createBoiler: 'Создать котел',
     logout: 'Выйти',
-    toggleNav: 'Переключить навигацию',
-    toggleTheme: 'Переключить тему',
     language: 'Язык'
   },
   uz: {
-    title: 'Admin-panel',
-    home: 'Bosh sahifa',
-    applications: 'Arizalar',
-    boilers: 'Qozonlar',
+    dashboard: 'Boshqaruv paneli',
+    main: 'Asosiy',
+    requests: 'Arizalar',
+    createBoiler: 'Qozon yaratish',
     logout: 'Chiqish',
-    toggleNav: 'Navigatsiyani almashtirish',
-    toggleTheme: 'Mavzuni o\'zgartirish',
     language: 'Til'
   },
 };
@@ -56,143 +33,141 @@ const adminTranslations = {
 export default function AdminLayout({
   children,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ru');
-  
-  const router = useRouter();
-  const pathname = usePathname();
+  const t = translations[language as keyof typeof translations];
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser) {
-        router.push('/admin/login');
-      } else {
-        setUser(currentUser);
-        setLoading(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
-
-  useEffect(() => {
-    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    document.documentElement.style.colorScheme = savedTheme;
-
-    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('language') || 'ru' : 'ru';
+    const savedLang = localStorage.getItem('language') || 'ru';
     setLanguage(savedLang);
   }, []);
 
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/admin/login');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
-    if(typeof window !== 'undefined') localStorage.setItem('language', lang);
+    localStorage.setItem('language', lang);
   };
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    document.documentElement.style.colorScheme = newTheme;
-    if(typeof window !== 'undefined') localStorage.setItem('theme', newTheme);
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await auth.signOut();
     router.push('/admin/login');
   };
 
-  const t = adminTranslations[language as keyof typeof adminTranslations];
-
-  const NavLink = ({ href, icon, text }: { href: string, icon: ReactNode, text: string }) => (
-    <Link href={href} passHref>
-      <Button
-        variant={pathname === href ? 'secondary' : 'ghost'}
-        className="w-full justify-start text-base"
-        onClick={() => setIsSheetOpen(false)}
-      >
-        {icon}
-        {text}
-      </Button>
-    </Link>
-  );
-
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!user) {
-    return null; // Should not happen due to the redirect, but as a safeguard.
-  }
+  const navContent = (
+    <nav className="grid gap-4 text-lg font-medium">
+      <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
+        <span className="">{t.dashboard}</span>
+      </Link>
+      <div className="grid grid-cols-2 gap-4">
+         <Link href="/admin" passHref>
+          <Card className="hover:bg-accent cursor-pointer">
+            <CardContent className="flex flex-col items-center justify-center p-6">
+              <Home className="h-8 w-8 mb-2" />
+              <span>{t.main}</span>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/admin/applications" passHref>
+           <Card className="hover:bg-accent cursor-pointer">
+            <CardContent className="flex flex-col items-center justify-center p-6">
+              <List className="h-8 w-8 mb-2" />
+              <span>{t.requests}</span>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+      <Link href="/admin/create-boiler" passHref>
+         <Card className="hover:bg-accent cursor-pointer col-span-2">
+            <CardContent className="flex flex-col items-center justify-center p-6">
+                <PlusSquare className="h-8 w-8 mb-2" />
+                <span>{t.createBoiler}</span>
+            </CardContent>
+        </Card>
+      </Link>
+    </nav>
+  );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-4">
-          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+       <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col border-r bg-background sm:flex">
+        <div className="flex flex-col gap-y-4 p-6">
+         {navContent}
+        </div>
+      </aside>
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-72">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+          <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">{t.toggleNav}</span>
+              <Button size="icon" variant="outline" className="sm:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <nav className="grid gap-2 text-lg font-medium mt-8">
-                <NavLink href="/admin" icon={<Home className="mr-2 h-5 w-5" />} text={t.home} />
-                <NavLink href="/admin/applications" icon={<FileText className="mr-2 h-5 w-5" />} text={t.applications} />
-                <NavLink href="/admin/boilers" icon={<Flame className="mr-2 h-5 w-5" />} text={t.boilers} />
-              </nav>
-              <div className="mt-auto">
-                 <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base">
-                    <LogOut className="mr-2 h-5 w-5" />
-                    {t.logout}
-                 </Button>
-              </div>
+            <SheetContent side="left" className="sm:max-w-xs pt-16">
+              {navContent}
             </SheetContent>
           </Sheet>
-          <h1 className="text-xl font-bold">{t.title}</h1>
-        </div>
-        <div className="flex items-center gap-4">
-           <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-[80px]">
-              <SelectValue placeholder={t.language} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ru">RU</SelectItem>
-              <SelectItem value="uz">UZ</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">{t.toggleTheme}</span>
-          </Button>
-        </div>
-      </header>
-      <div className="flex">
-        <aside className="hidden md:flex md:flex-col md:w-64 md:border-r md:bg-card">
-           <nav className="flex flex-col gap-2 p-4 text-lg font-medium">
-              <NavLink href="/admin" icon={<Home className="mr-2 h-5 w-5" />} text={t.home} />
-              <NavLink href="/admin/applications" icon={<FileText className="mr-2 h-5 w-5" />} text={t.applications} />
-              <NavLink href="/admin/boilers" icon={<Flame className="mr-2 h-5 w-5" />} text={t.boilers} />
-           </nav>
-           <div className="mt-auto p-4">
-             <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base">
-                <LogOut className="mr-2 h-5 w-5" />
-                {t.logout}
-             </Button>
-           </div>
-        </aside>
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+          <div className="relative ml-auto flex-1 md:grow-0">
+             {/* Header can be empty or have breadcrumbs */}
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={language} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue placeholder={t.language} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ru">RU</SelectItem>
+                <SelectItem value="uz">UZ</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon" onClick={toggleTheme}>
+              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              {t.logout}
+            </Button>
+          </div>
+        </header>
+        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+          {children}
+        </main>
       </div>
     </div>
   );

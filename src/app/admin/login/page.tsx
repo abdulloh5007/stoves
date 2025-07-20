@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,73 +17,79 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
-export default function AdminLoginPage() {
+const translations = {
+  ru: {
+    title: 'Вход для администратора',
+    description: 'Введите ваши данные для входа в панель управления.',
+    emailLabel: 'Электронная почта',
+    passwordLabel: 'Пароль',
+    loginButton: 'Войти',
+    loggingIn: 'Вход...',
+    errorTitle: 'Ошибка входа',
+    successTitle: 'Вход выполнен',
+    successDescription: 'Перенаправление в панель управления...',
+  },
+  uz: {
+    title: 'Administrator uchun kirish',
+    description: 'Boshqaruv paneliga kirish uchun ma\'lumotlaringizni kiriting.',
+    emailLabel: 'Elektron pochta',
+    passwordLabel: 'Parol',
+    loginButton: 'Kirish',
+    loggingIn: 'Kirilmoqda...',
+    errorTitle: 'Kirishda xatolik',
+    successTitle: 'Muvaffaqiyatli kirish',
+    successDescription: 'Boshqaruv paneliga yo\'naltirilmoqda...',
+  },
+};
+
+// Dummy language state for now
+const language = 'ru';
+const t = translations[language];
+
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push('/admin');
-      } else {
-        setIsCheckingAuth(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-        toast({
-            variant: 'destructive',
-            title: 'Ошибка',
-            description: 'Пожалуйста, введите email и пароль.',
-        });
-        return;
-    }
-    setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // The onAuthStateChanged listener will handle the redirect
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Ошибка входа',
-        description: 'Неверный email или пароль.',
-      });
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    signInWithEmailAndPassword(email, password);
   };
-  
-  if (isCheckingAuth) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: t.errorTitle,
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  }, [error, toast]);
+
+  useEffect(() => {
+    if (user) {
+      toast({
+        title: t.successTitle,
+        description: t.successDescription,
+      });
+      router.push('/admin');
+    }
+  }, [user, router, toast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Вход в админ-панель</CardTitle>
-          <CardDescription>
-            Пожалуйста, введите email и пароль для доступа.
-          </CardDescription>
+          <CardTitle className="text-2xl">{t.title}</CardTitle>
+          <CardDescription>{t.description}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t.emailLabel}</Label>
               <Input
                 id="email"
                 type="email"
@@ -91,19 +97,18 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
               />
             </div>
             <div className="grid gap-2 relative">
-              <Label htmlFor="password">Пароль</Label>
+              <Label htmlFor="password">{t.passwordLabel}</Label>
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                className="pr-10"
+                disabled={loading}
               />
               <Button
                 type="button"
@@ -111,24 +116,14 @@ export default function AdminLoginPage() {
                 size="icon"
                 className="absolute right-1 top-7 h-7 w-7"
                 onClick={() => setShowPassword(!showPassword)}
-                disabled={isLoading}
+                disabled={loading}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-                <span className="sr-only">
-                  {showPassword ? 'Скрыть пароль' : 'Показать пароль'}
-                </span>
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                'Войти'
-              )}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? t.loggingIn : t.loginButton}
             </Button>
           </form>
         </CardContent>
