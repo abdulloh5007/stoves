@@ -15,6 +15,7 @@ import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import type { Request } from '../page';
 import { statusMap } from '../page';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Label } from '@/components/ui/label';
 
 const formatPrice = (priceString: string) => {
     if (!priceString) return '';
