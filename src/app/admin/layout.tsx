@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Loader2, LogOut, Menu, Moon, Sun, List, PlusSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
 import uz from '@/locales/uz.json';
 import { cn } from '@/lib/utils';
@@ -131,7 +131,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="pt-16">
+              <SheetContent side="right" className="pt-8">
+                 <SheetHeader className="text-left mb-4">
+                  <SheetTitle>Меню</SheetTitle>
+                </SheetHeader>
                 {navContent}
               </SheetContent>
             </Sheet>
