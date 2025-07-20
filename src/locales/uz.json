@@ -1,0 +1,42 @@
+{
+  "home": {
+    "siteTitle": "Qozonlar savdosi",
+    "siteDescription": "Uyingiz uchun eng yaxshi qozonni tanlang",
+    "buyButton": "Sotib olish",
+    "requestTitle": "Buyurtma",
+    "requestDescription": "Buyurtma yuborish uchun quyidagi shaklni to'ldiring.",
+    "nameLabel": "Ism",
+    "phoneLabel": "Telefon",
+    "priceLabel": "Narx",
+    "cancelButton": "Bekor qilish",
+    "submitButton": "Yuborish",
+    "successToastTitle": "Muvaffaqiyatli!",
+    "successToastDescription": "Sizning arizangiz yuborildi!",
+    "adminLogin": "Admin uchun kirish",
+    "language": "Til"
+  },
+  "admin": {
+    "dashboard": "Boshqaruv paneli",
+    "main": "Asosiy",
+    "requests": "Arizalar",
+    "createBoiler": "Qozon yaratish",
+    "logout": "Chiqish",
+    "language": "Til",
+    "welcome": "Xush kelibsiz!",
+    "stats": "Statistika",
+    "totalApplications": "Jami arizalar",
+    "totalBoilers": "Jami qozonlar",
+    "newApplications": "Yangi arizalar"
+  },
+  "login": {
+    "title": "Administrator uchun kirish",
+    "description": "Boshqaruv paneliga kirish uchun ma'lumotlaringizni kiriting.",
+    "emailLabel": "Elektron pochta",
+    "passwordLabel": "Parol",
+    "loginButton": "Kirish",
+    "loggingIn": "Kirilmoqda...",
+    "errorTitle": "Kirishda xatolik",
+    "successTitle": "Muvaffaqiyatli kirish",
+    "successDescription": "Boshqaruv paneliga yo'naltirilmoqda..."
+  }
+}

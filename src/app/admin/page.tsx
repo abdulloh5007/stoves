@@ -1,27 +1,23 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const translations = {
-    ru: {
-      welcome: 'Добро пожаловать!',
-      stats: 'Статистика',
-      totalApplications: 'Всего заявок',
-      totalBoilers: 'Всего котлов',
-      newApplications: 'Новые заявки',
-    },
-    uz: {
-      welcome: 'Xush kelibsiz!',
-      stats: 'Statistika',
-      totalApplications: 'Jami arizalar',
-      totalBoilers: 'Jami qozonlar',
-      newApplications: 'Yangi arizalar',
-    }
-};
+// Import translation files
+import ru from '@/locales/ru.json';
+import uz from '@/locales/uz.json';
+
+const translations = { ru, uz };
 
 export default function AdminDashboard() {
-    const language = 'ru'; // Or get from context/localstorage
-    const t = translations[language];
+    const [language, setLanguage] = useState('ru');
+    
+    useEffect(() => {
+        const savedLang = localStorage.getItem('language') || 'ru';
+        setLanguage(savedLang);
+    }, []);
+    
+    const t = translations[language as keyof typeof translations].admin;
 
     // Dummy data
     const stats = {

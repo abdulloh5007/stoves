@@ -11,24 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
 
-const translations = {
-  ru: {
-    dashboard: 'Панель управления',
-    main: 'Главная',
-    requests: 'Заявки',
-    createBoiler: 'Создать котел',
-    logout: 'Выйти',
-    language: 'Язык'
-  },
-  uz: {
-    dashboard: 'Boshqaruv paneli',
-    main: 'Asosiy',
-    requests: 'Arizalar',
-    createBoiler: 'Qozon yaratish',
-    logout: 'Chiqish',
-    language: 'Til'
-  },
-};
+// Import translation files
+import ru from '@/locales/ru.json';
+import uz from '@/locales/uz.json';
+
+const translations = { ru, uz };
 
 export default function AdminLayout({
   children,
@@ -37,10 +24,9 @@ export default function AdminLayout({
 }) {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
-  const pathname = usePathname();
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ru');
-  const t = translations[language as keyof typeof translations];
+  const t = translations[language as keyof typeof translations].admin;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

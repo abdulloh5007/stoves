@@ -18,30 +18,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-const translations = {
-  ru: {
-    title: 'Вход для администратора',
-    description: 'Введите ваши данные для входа в панель управления.',
-    emailLabel: 'Электронная почта',
-    passwordLabel: 'Пароль',
-    loginButton: 'Войти',
-    loggingIn: 'Вход...',
-    errorTitle: 'Ошибка входа',
-    successTitle: 'Вход выполнен',
-    successDescription: 'Перенаправление в панель управления...',
-  },
-  uz: {
-    title: 'Administrator uchun kirish',
-    description: 'Boshqaruv paneliga kirish uchun ma\'lumotlaringizni kiriting.',
-    emailLabel: 'Elektron pochta',
-    passwordLabel: 'Parol',
-    loginButton: 'Kirish',
-    loggingIn: 'Kirilmoqda...',
-    errorTitle: 'Kirishda xatolik',
-    successTitle: 'Muvaffaqiyatli kirish',
-    successDescription: 'Boshqaruv paneliga yo\'naltirilmoqda...',
-  },
-};
+// Import translation files
+import ru from '@/locales/ru.json';
+import uz from '@/locales/uz.json';
+
+const translations = { ru, uz };
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -51,6 +33,10 @@ export default function LoginPage() {
   const [user, authLoading] = useAuthState(auth);
   const router = useRouter();
   const { toast } = useToast();
+  // For login page, we can probably stick to one language or get it from localStorage
+  const [language] = useState( (typeof window !== 'undefined' && localStorage.getItem('language')) || 'ru');
+  const t = translations[language as keyof typeof translations].login;
+
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,22 +46,22 @@ export default function LoginPage() {
   useEffect(() => {
     if (error) {
       toast({
-        title: translations.ru.errorTitle,
+        title: t.errorTitle,
         description: error.message,
         variant: 'destructive',
       });
     }
-  }, [error, toast]);
+  }, [error, toast, t]);
   
   useEffect(() => {
     if (signedInUser || (!authLoading && user)) {
        toast({
-        title: translations.ru.successTitle,
-        description: translations.ru.successDescription,
+        title: t.successTitle,
+        description: t.successDescription,
       });
       router.push('/admin');
     }
-  },[signedInUser, user, authLoading, router, toast]);
+  },[signedInUser, user, authLoading, router, toast, t]);
 
   if (authLoading) {
      return (
@@ -85,12 +71,11 @@ export default function LoginPage() {
     );
   }
 
-  // Не рендерим форму, если пользователь уже вошел и идет перенаправление
+  // Do not render the form if user is already logged in and redirecting
   if (user) {
     return null; 
   }
 
-  const t = translations['ru'];
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">

@@ -34,6 +34,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+// Import translation files
+import ru from '@/locales/ru.json';
+import uz from '@/locales/uz.json';
+
+const translations = { ru, uz };
+
 // Boiler type definition
 interface Boiler {
   id: string;
@@ -104,40 +110,6 @@ const formatPrice = (price: number) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
 
-// Translations
-const translations = {
-  ru: {
-    siteTitle: 'Продажа котлов',
-    siteDescription: 'Выберите лучший котел для вашего дома',
-    buyButton: 'Купить',
-    requestTitle: 'Заявка на',
-    requestDescription: 'Заполните форму ниже, чтобы отправить заявку.',
-    nameLabel: 'Имя',
-    phoneLabel: 'Телефон',
-    priceLabel: 'Сумма',
-    cancelButton: 'Отмена',
-    submitButton: 'Отправить',
-    successToastTitle: 'Успешно!',
-    successToastDescription: 'Ваша заявка отправлена!',
-    adminLogin: 'Вход для админа',
-  },
-  uz: {
-    siteTitle: 'Qozonlar savdosi',
-    siteDescription: 'Uyingiz uchun eng yaxshi qozonni tanlang',
-    buyButton: 'Sotib olish',
-    requestTitle: 'Buyurtma',
-    requestDescription: 'Buyurtma yuborish uchun quyidagi shaklni to\'ldiring.',
-    nameLabel: 'Ism',
-    phoneLabel: 'Telefon',
-    priceLabel: 'Narx',
-    cancelButton: 'Bekor qilish',
-    submitButton: 'Yuborish',
-    successToastTitle: 'Muvaffaqiyatli!',
-    successToastDescription: 'Sizning arizangiz yuborildi!',
-    adminLogin: 'Admin uchun kirish',
-  },
-};
-
 export default function Home() {
   const [selectedBoiler, setSelectedBoiler] = useState<Boiler | null>(null);
   const [name, setName] = useState('');
@@ -149,7 +121,7 @@ export default function Home() {
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ru');
 
-  const t = translations[language as keyof typeof translations];
+  const t = translations[language as keyof typeof translations].home;
 
   useEffect(() => {
     const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
@@ -217,7 +189,7 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <Select value={language} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-[80px]">
-              <SelectValue placeholder="Язык" />
+              <SelectValue placeholder={t.language} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ru">RU</SelectItem>

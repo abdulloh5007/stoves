@@ -1,0 +1,42 @@
+{
+  "home": {
+    "siteTitle": "Продажа котлов",
+    "siteDescription": "Выберите лучший котел для вашего дома",
+    "buyButton": "Купить",
+    "requestTitle": "Заявка на",
+    "requestDescription": "Заполните форму ниже, чтобы отправить заявку.",
+    "nameLabel": "Имя",
+    "phoneLabel": "Телефон",
+    "priceLabel": "Сумма",
+    "cancelButton": "Отмена",
+    "submitButton": "Отправить",
+    "successToastTitle": "Успешно!",
+    "successToastDescription": "Ваша заявка отправлена!",
+    "adminLogin": "Вход для админа",
+    "language": "Язык"
+  },
+  "admin": {
+    "dashboard": "Панель управления",
+    "main": "Главная",
+    "requests": "Заявки",
+    "createBoiler": "Создать котел",
+    "logout": "Выйти",
+    "language": "Язык",
+    "welcome": "Добро пожаловать!",
+    "stats": "Статистика",
+    "totalApplications": "Всего заявок",
+    "totalBoilers": "Всего котлов",
+    "newApplications": "Новые заявки"
+  },
+  "login": {
+    "title": "Вход для администратора",
+    "description": "Введите ваши данные для входа в панель управления.",
+    "emailLabel": "Электронная почта",
+    "passwordLabel": "Пароль",
+    "loginButton": "Войти",
+    "loggingIn": "Вход...",
+    "errorTitle": "Ошибка входа",
+    "successTitle": "Вход выполнен",
+    "successDescription": "Перенаправление в панель управления..."
+  }
+}
