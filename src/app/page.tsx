@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -129,7 +128,6 @@ const translations = {
   },
 };
 
-
 export default function Home() {
   const [selectedBoiler, setSelectedBoiler] = useState<Boiler | null>(null);
   const [name, setName] = useState('');
@@ -144,15 +142,22 @@ export default function Home() {
   const t = translations[language as keyof typeof translations];
 
   useEffect(() => {
+    // Check for saved theme in localStorage or default to 'dark'
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+  }, []);
+
+  useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-       document.documentElement.style.colorScheme = 'dark';
+      document.documentElement.style.colorScheme = 'dark';
     } else {
       document.documentElement.classList.remove('dark');
-       document.documentElement.style.colorScheme = 'light';
+      document.documentElement.style.colorScheme = 'light';
     }
+    localStorage.setItem('theme', theme);
   }, [theme]);
-  
+
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
@@ -191,21 +196,23 @@ export default function Home() {
 
   return (
     <div className="bg-background min-h-screen">
-       <header className="container mx-auto py-4 px-4 flex justify-between items-center">
+      <header className="container mx-auto py-4 px-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-foreground">{t.siteTitle}</h1>
         <div className="flex items-center gap-4">
-           <div className="flex items-center gap-2">
-            <Button 
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
+            <Button
               variant={language === 'ru' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setLanguage('ru')}
+              className="px-3"
             >
               RU
             </Button>
-            <Button 
+            <Button
               variant={language === 'uz' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setLanguage('uz')}
+              className="px-3"
             >
               UZ
             </Button>
@@ -322,5 +329,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
