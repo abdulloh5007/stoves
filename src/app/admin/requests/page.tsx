@@ -23,9 +23,10 @@ export const fakeRequests = [
 ];
 
 export const statusMap = {
-  new: { text: 'Yangi', variant: 'destructive' as const, className: 'bg-red-500 text-white' },
-  contacted: { text: 'Aloqaga chiqildi', variant: 'secondary' as const, className: 'bg-yellow-500 text-white' },
+  new: { text: 'Yangi', variant: 'destructive' as const, className: 'bg-blue-500 text-white' },
+  contacted: { text: 'Aloqaga chiqildi', variant: 'secondary' as const, className: 'bg-yellow-500 text-black' },
   done: { text: 'Bajarildi', variant: 'default' as const, className: 'bg-green-500 text-white' },
+  cancelled: { text: 'Otmenen', variant: 'destructive' as const, className: 'bg-gray-600 text-white' },
 };
 
 // Helper to format numbers with spaces
@@ -86,8 +87,8 @@ export default function RequestsPage() {
                                 <TableCell>{request.phone}</TableCell>
                                 <TableCell>{formatPrice(request.offeredPrice)}</TableCell>
                                 <TableCell>
-                                    <Badge variant={statusMap[request.status].variant}>
-                                        {statusMap[request.status].text}
+                                    <Badge className={cn(statusMap[request.status as keyof typeof statusMap].className)}>
+                                        {statusMap[request.status as keyof typeof statusMap].text}
                                     </Badge>
                                 </TableCell>
                             </TableRow>
@@ -108,7 +109,7 @@ export default function RequestsPage() {
                   <CardHeader>
                       <CardTitle className="text-base flex justify-between items-center">
                           <span>{request.boilerName}</span>
-                          <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
+                          <Badge className={cn(statusMap[request.status as keyof typeof statusMap].className)}>
                               {statusMap[request.status as keyof typeof statusMap].text}
                           </Badge>
                       </CardTitle>

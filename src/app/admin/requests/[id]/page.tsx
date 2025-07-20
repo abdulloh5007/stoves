@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { fakeRequests, statusMap } from '../page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, User, Phone, Tag, Home, Save, CheckCircle, Zap } from 'lucide-react';
+import { Calendar, User, Phone, Tag, Home, Save, CheckCircle, Zap, ArrowLeft, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
@@ -30,6 +30,7 @@ const formatDate = (dateString: string) => {
 
 export default function RequestDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { toast } = useToast();
   const id = params.id;
   
@@ -51,7 +52,7 @@ export default function RequestDetailPage() {
     );
   }
   
-  const handleStatusChange = (newStatus: 'contacted' | 'done') => {
+  const handleStatusChange = (newStatus: 'contacted' | 'done' | 'cancelled') => {
     setCurrentStatus(newStatus);
     toast({
         title: "Holat o'zgartirildi!",
@@ -76,9 +77,14 @@ export default function RequestDetailPage() {
                  <Card>
                     <CardHeader>
                         <div className="flex justify-between items-start">
-                           <div>
-                                <CardTitle className="text-2xl">{request.boilerName}</CardTitle>
-                                <CardDescription>Ariza #{request.id}</CardDescription>
+                           <div className="flex items-center gap-4">
+                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Button>
+                                <div>
+                                    <CardTitle className="text-2xl">{request.boilerName}</CardTitle>
+                                    <CardDescription>Ariza #{request.id}</CardDescription>
+                                </div>
                            </div>
                            <Badge className={cn("text-sm", statusMap[currentStatus as keyof typeof statusMap].className)}>
                             {statusMap[currentStatus as keyof typeof statusMap].text}
@@ -148,17 +154,25 @@ export default function RequestDetailPage() {
                         <Button 
                             variant="outline"
                             onClick={() => handleStatusChange('contacted')}
-                            disabled={currentStatus === 'contacted' || currentStatus === 'done'}
+                            disabled={currentStatus !== 'new'}
                         >
                             <Zap className="mr-2 h-4 w-4" />
                             Aloqaga chiqildi
                         </Button>
                         <Button 
                             onClick={() => handleStatusChange('done')}
-                            disabled={currentStatus === 'done'}
+                            disabled={currentStatus === 'done' || currentStatus === 'cancelled'}
                         >
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Bajarildi
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => handleStatusChange('cancelled')}
+                            disabled={currentStatus === 'done' || currentStatus === 'cancelled'}
+                        >
+                           <XCircle className="mr-2 h-4 w-4" />
+                            Otmenen
                         </Button>
                     </CardContent>
                  </Card>
