@@ -66,7 +66,7 @@ export default function RequestsPage() {
     <Card>
         <CardContent className="p-0">
             <div className="overflow-x-auto">
-                <Table className="min-w-[800px]">
+                <Table className="min-w-[1024px]">
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
@@ -170,5 +170,3 @@ export default function RequestsPage() {
     </div>
   );
 }
-
-    
