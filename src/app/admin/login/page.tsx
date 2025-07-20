@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl">Вход в админ-панель</CardTitle>
           <CardDescription>
-            Пожалуйста, введите свои данные для входа.
+            Пожалуйста, введите email и пароль администратора.
           </CardDescription>
         </CardHeader>
         <CardContent>
