@@ -31,132 +31,147 @@ type ViewMode = 'table' | 'card';
 export default function RequestsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
 
-  return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between">
-        <div>
-            <CardTitle>{t.title}</CardTitle>
-            <CardDescription>{t.description}</CardDescription>
-        </div>
-        <div className="flex items-center gap-2 rounded-md bg-muted p-1">
-             <Button
-                variant={viewMode === 'table' ? 'default' : 'ghost'}
-                size="icon"
-                onClick={() => setViewMode('table')}
-                className={cn("h-8 w-8", {
-                    "bg-primary text-primary-foreground hover:bg-primary/90": viewMode === 'table'
-                })}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'card' ? 'default' : 'ghost'}
-                size="icon"
-                onClick={() => setViewMode('card')}
-                className={cn("h-8 w-8", {
-                    "bg-primary text-primary-foreground hover:bg-primary/90": viewMode === 'card'
-                })}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {viewMode === 'table' ? (
-          <div className="hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>{t.boilerName}</TableHead>
-                  <TableHead>{t.customerName}</TableHead>
-                  <TableHead>{t.phone}</TableHead>
-                  <TableHead>{t.price}</TableHead>
-                  <TableHead>{t.status}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {fakeRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>{request.id}</TableCell>
-                    <TableCell>{request.boilerName}</TableCell>
-                    <TableCell>{request.customerName}</TableCell>
-                    <TableCell>{request.phone}</TableCell>
-                    <TableCell>{request.offeredPrice}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
-                        {statusMap[request.status as keyof typeof statusMap].text}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : null}
-
-        { /* Common container for both table scroll on mobile and card view */ }
-        <div className={cn({ "md:hidden": viewMode === 'table' })}>
-            {viewMode === 'table' ? (
-                 <div className="w-full overflow-x-auto">
-                    <Table className="min-w-[600px]">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>{t.boilerName}</TableHead>
-                          <TableHead>{t.customerName}</TableHead>
-                          <TableHead>{t.phone}</TableHead>
-                          <TableHead>{t.price}</TableHead>
-                          <TableHead>{t.status}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {fakeRequests.map((request) => (
-                          <TableRow key={request.id}>
-                            <TableCell>{request.id}</TableCell>
-                            <TableCell>{request.boilerName}</TableCell>
-                            <TableCell>{request.customerName}</TableCell>
-                            <TableCell>{request.phone}</TableCell>
-                            <TableCell>{request.offeredPrice}</TableCell>
-                            <TableCell>
-                              <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
-                                {statusMap[request.status as keyof typeof statusMap].text}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                 </div>
-            ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {fakeRequests.map((request) => (
-                        <Card key={request.id}>
-                            <CardHeader>
-                                <CardTitle className="text-base flex justify-between items-center">
-                                    <span>{request.boilerName}</span>
-                                    <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
-                                        {statusMap[request.status as keyof typeof statusMap].text}
-                                    </Badge>
-                                </CardTitle>
-                                <CardDescription>{request.customerName}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid gap-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">{t.phone}</span>
-                                    <span>{request.phone}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">{t.price}</span>
-                                    <span>{request.offeredPrice}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
-        </div>
+  const TableView = () => (
+    <Card className="hidden md:block">
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>{t.boilerName}</TableHead>
+              <TableHead>{t.customerName}</TableHead>
+              <TableHead>{t.phone}</TableHead>
+              <TableHead>{t.price}</TableHead>
+              <TableHead>{t.status}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {fakeRequests.map((request) => (
+              <TableRow key={request.id}>
+                <TableCell>{request.id}</TableCell>
+                <TableCell>{request.boilerName}</TableCell>
+                <TableCell>{request.customerName}</TableCell>
+                <TableCell>{request.phone}</TableCell>
+                <TableCell>{request.offeredPrice}</TableCell>
+                <TableCell>
+                  <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
+                    {statusMap[request.status as keyof typeof statusMap].text}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
+  );
+
+  const MobileTableView = () => (
+     <Card className="md:hidden">
+        <CardContent className="p-0">
+            <div className="w-full overflow-x-auto">
+                <Table className="min-w-[600px]">
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>{t.boilerName}</TableHead>
+                    <TableHead>{t.customerName}</TableHead>
+                    <TableHead>{t.phone}</TableHead>
+                    <TableHead>{t.price}</TableHead>
+                    <TableHead>{t.status}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {fakeRequests.map((request) => (
+                    <TableRow key={request.id}>
+                        <TableCell>{request.id}</TableCell>
+                        <TableCell>{request.boilerName}</TableCell>
+                        <TableCell>{request.customerName}</TableCell>
+                        <TableCell>{request.phone}</TableCell>
+                        <TableCell>{request.offeredPrice}</TableCell>
+                        <TableCell>
+                        <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
+                            {statusMap[request.status as keyof typeof statusMap].text}
+                        </Badge>
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </div>
+        </CardContent>
+     </Card>
+  );
+
+  const CardView = () => (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {fakeRequests.map((request) => (
+            <Card key={request.id}>
+                <CardHeader>
+                    <CardTitle className="text-base flex justify-between items-center">
+                        <span>{request.boilerName}</span>
+                        <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
+                            {statusMap[request.status as keyof typeof statusMap].text}
+                        </Badge>
+                    </CardTitle>
+                    <CardDescription>{request.customerName}</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-2 text-sm">
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t.phone}</span>
+                        <span>{request.phone}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t.price}</span>
+                        <span>{request.offeredPrice}</span>
+                    </div>
+                </CardContent>
+            </Card>
+        ))}
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+            <div>
+                <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+                <p className="text-muted-foreground">{t.description}</p>
+            </div>
+            <div className="flex items-center gap-2 rounded-md bg-muted p-1">
+                <Button
+                    variant={viewMode === 'table' ? 'default' : 'ghost'}
+                    size="icon"
+                    onClick={() => setViewMode('table')}
+                    className={cn("h-8 w-8", {
+                        "bg-primary text-primary-foreground hover:bg-primary/90": viewMode === 'table'
+                    })}
+                >
+                    <List className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant={viewMode === 'card' ? 'default' : 'ghost'}
+                    size="icon"
+                    onClick={() => setViewMode('card')}
+                    className={cn("h-8 w-8", {
+                        "bg-primary text-primary-foreground hover:bg-primary/90": viewMode === 'card'
+                    })}
+                >
+                    <LayoutGrid className="h-4 w-4" />
+                </Button>
+            </div>
+        </div>
+
+        <div>
+            {viewMode === 'table' ? (
+                <>
+                    <TableView />
+                    <MobileTableView />
+                </>
+            ) : (
+                <CardView />
+            )}
+        </div>
+    </div>
   );
 }
