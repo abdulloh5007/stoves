@@ -30,40 +30,64 @@ import { Loader2, Moon, Sun } from 'lucide-react';
 // Boiler type definition
 interface Boiler {
   id: string;
-  name: string;
+  name: { [key: string]: string };
+  description: { [key: string]: string };
   price: number;
-  description: string;
   imageUrl: string;
 }
 
-// Mock data for boilers
+// Mock data for boilers with translations
 const fakeBoilers: Boiler[] = [
   {
     id: 'boiler-1',
-    name: 'Котел "Теплодар-1"',
+    name: {
+      ru: 'Котел "Теплодар-1"',
+      uz: '"Teplodar-1" qozoni',
+    },
     price: 150000,
-    description: 'Надежный и эффективный угольный котел для вашего дома.',
+    description: {
+      ru: 'Надежный и эффективный угольный котел для вашего дома.',
+      uz: 'Uyingiz uchun ishonchli va samarali ko\'mirli qozon.',
+    },
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: 'boiler-2',
-    name: 'Котел "Пламя-2"',
+    name: {
+      ru: 'Котел "Пламя-2"',
+      uz: '"Plamya-2" qozoni',
+    },
     price: 220000,
-    description: 'Современный газовый котел с высоким КПД и автоматикой.',
+    description: {
+      ru: 'Современный газовый котел с высоким КПД и автоматикой.',
+      uz: 'Yuqori samaradorlik va avtomatikaga ega zamonaviy gaz qozoni.',
+    },
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: 'boiler-3',
-    name: 'Котел "Уют-3"',
+    name: {
+      ru: 'Котел "Уют-3"',
+      uz: '"Uyut-3" qozoni',
+    },
     price: 185000,
-    description: 'Компактный электрический котел, идеален для небольших помещений.',
+    description: {
+      ru: 'Компактный электрический котел, идеален для небольших помещений.',
+      uz: 'Kichik xonalar uchun ideal bo\'lgan ixcham elektr qozon.',
+    },
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: 'boiler-4',
-    name: 'Котел "Гигант-4"',
+    name: {
+      ru: 'Котел "Гигант-4"',
+      uz: '"Gigant-4" qozoni',
+    },
     price: 310000,
-    description: 'Мощный промышленный котел для отопления больших площадей.',
+    description: {
+      ru: 'Мощный промышленный котел для отопления больших площадей.',
+      uz: 'Katta maydonlarni isitish uchun kuchli sanoat qozoni.',
+    },
     imageUrl: 'https://placehold.co/600x400.png',
   },
 ];
@@ -72,6 +96,39 @@ const fakeBoilers: Boiler[] = [
 const formatPrice = (price: number) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
+
+// Translations
+const translations = {
+  ru: {
+    siteTitle: 'Продажа котлов',
+    siteDescription: 'Выберите лучший котел для вашего дома',
+    buyButton: 'Купить',
+    requestTitle: 'Заявка на',
+    requestDescription: 'Заполните форму ниже, чтобы отправить заявку.',
+    nameLabel: 'Имя',
+    phoneLabel: 'Телефон',
+    priceLabel: 'Сумма',
+    cancelButton: 'Отмена',
+    submitButton: 'Отправить',
+    successToastTitle: 'Успешно!',
+    successToastDescription: 'Ваша заявка отправлена!',
+  },
+  uz: {
+    siteTitle: 'Qozonlar savdosi',
+    siteDescription: 'Uyingiz uchun eng yaxshi qozonni tanlang',
+    buyButton: 'Sotib olish',
+    requestTitle: 'Buyurtma',
+    requestDescription: 'Buyurtma yuborish uchun quyidagi shaklni to\'ldiring.',
+    nameLabel: 'Ism',
+    phoneLabel: 'Telefon',
+    priceLabel: 'Narx',
+    cancelButton: 'Bekor qilish',
+    submitButton: 'Yuborish',
+    successToastTitle: 'Muvaffaqiyatli!',
+    successToastDescription: 'Sizning arizangiz yuborildi!',
+  },
+};
+
 
 export default function Home() {
   const [selectedBoiler, setSelectedBoiler] = useState<Boiler | null>(null);
@@ -84,11 +141,15 @@ export default function Home() {
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ru');
 
+  const t = translations[language as keyof typeof translations];
+
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+       document.documentElement.style.colorScheme = 'dark';
     } else {
       document.documentElement.classList.remove('dark');
+       document.documentElement.style.colorScheme = 'light';
     }
   }, [theme]);
   
@@ -118,8 +179,8 @@ export default function Home() {
 
     setIsLoading(false);
     toast({
-      title: 'Успешно!',
-      description: 'Ваша заявка отправлена!',
+      title: t.successToastTitle,
+      description: t.successToastDescription,
     });
     setIsDialogOpen(false); // Close dialog on success
     // Reset form fields
@@ -131,7 +192,7 @@ export default function Home() {
   return (
     <div className="bg-background min-h-screen">
        <header className="container mx-auto py-4 px-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-foreground">Продажа котлов</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t.siteTitle}</h1>
         <div className="flex items-center gap-4">
            <div className="flex items-center gap-2">
             <Button 
@@ -157,7 +218,7 @@ export default function Home() {
         </div>
       </header>
       <main className="container mx-auto p-4">
-        <p className="text-lg text-muted-foreground mt-2 mb-8">Выберите лучший котел для вашего дома</p>
+        <p className="text-lg text-muted-foreground mt-2 mb-8">{t.siteDescription}</p>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {fakeBoilers.map((boiler) => (
@@ -165,7 +226,7 @@ export default function Home() {
                 <CardHeader className="p-0">
                   <Image
                     src={boiler.imageUrl}
-                    alt={boiler.name}
+                    alt={boiler.name[language]}
                     width={600}
                     height={400}
                     className="object-cover w-full h-48"
@@ -173,9 +234,9 @@ export default function Home() {
                   />
                 </CardHeader>
                 <CardContent className="p-4 flex-grow">
-                  <CardTitle className="text-xl mb-2">{boiler.name}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{boiler.name[language]}</CardTitle>
                   <CardDescription className="text-base text-muted-foreground">
-                    {boiler.description}
+                    {boiler.description[language]}
                   </CardDescription>
                 </CardContent>
                 <CardFooter className="p-4 flex justify-between items-center">
@@ -183,7 +244,7 @@ export default function Home() {
                     {formatPrice(boiler.price)} UZS
                   </p>
                   <DialogTrigger asChild>
-                    <Button onClick={() => handleBuyClick(boiler)}>Купить</Button>
+                    <Button onClick={() => handleBuyClick(boiler)}>{t.buyButton}</Button>
                   </DialogTrigger>
                 </CardFooter>
               </Card>
@@ -193,16 +254,16 @@ export default function Home() {
           {selectedBoiler && (
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Заявка на {selectedBoiler.name}</DialogTitle>
+                <DialogTitle>{t.requestTitle} {selectedBoiler.name[language]}</DialogTitle>
                 <DialogDescription>
-                  Заполните форму ниже, чтобы отправить заявку.
+                  {t.requestDescription}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleFormSubmit}>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="name" className="text-right">
-                      Имя
+                      {t.nameLabel}
                     </Label>
                     <Input
                       id="name"
@@ -215,7 +276,7 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="phone" className="text-right">
-                      Телефон
+                      {t.phoneLabel}
                     </Label>
                     <Input
                       id="phone"
@@ -229,7 +290,7 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="offeredPrice" className="text-right">
-                      Сумма
+                      {t.priceLabel}
                     </Label>
                     <Input
                       id="offeredPrice"
@@ -245,12 +306,12 @@ export default function Home() {
                 <DialogFooter>
                    <DialogClose asChild>
                      <Button type="button" variant="secondary" disabled={isLoading}>
-                      Отмена
+                      {t.cancelButton}
                     </Button>
                   </DialogClose>
                   <Button type="submit" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Отправить
+                    {t.submitButton}
                   </Button>
                 </DialogFooter>
               </form>
@@ -261,3 +322,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
