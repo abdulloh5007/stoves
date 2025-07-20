@@ -8,10 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
-import ru from '@/locales/ru.json';
 import uz from '@/locales/uz.json';
 
-const translations = { ru, uz };
+const t = uz.login;
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -21,8 +20,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { toast } = useToast();
-  const [language] = useState((typeof window !== 'undefined' && localStorage.getItem('language')) || 'ru');
-  const t = translations[language as keyof typeof translations].login;
 
   useEffect(() => {
     // Redirect if already logged in
@@ -49,7 +46,7 @@ export default function LoginPage() {
         });
         router.push('/admin');
       } else {
-        const errorMessage = 'Неверный email или пароль';
+        const errorMessage = 'Notog\'ri email yoki parol';
         setError(errorMessage);
         toast({
           title: t.errorTitle,

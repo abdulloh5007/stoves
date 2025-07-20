@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,22 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import ru from '@/locales/ru.json';
 import uz from '@/locales/uz.json';
 
-const translations = { ru, uz };
+const t = uz.createBoiler;
 
 export default function CreateBoilerPage() {
-  const [language, setLanguage] = useState('ru');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const savedLang = localStorage.getItem('language') || 'ru';
-    setLanguage(savedLang);
-  }, []);
-
-  const t = translations[language as keyof typeof translations].createBoiler;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,25 +40,13 @@ export default function CreateBoilerPage() {
           <CardDescription>{t.description}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="grid gap-2">
-                    <Label htmlFor="name_ru">{t.name_ru}</Label>
-                    <Input id="name_ru" placeholder={t.name_ru_placeholder} disabled={isLoading} />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="name_uz">{t.name_uz}</Label>
-                    <Input id="name_uz" placeholder={t.name_uz_placeholder} disabled={isLoading} />
-                </div>
+            <div className="grid gap-2">
+                <Label htmlFor="name_uz">{t.name_uz}</Label>
+                <Input id="name_uz" placeholder={t.name_uz_placeholder} disabled={isLoading} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="grid gap-2">
-                    <Label htmlFor="description_ru">{t.description_ru}</Label>
-                    <Textarea id="description_ru" placeholder={t.description_ru_placeholder} disabled={isLoading} />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="description_uz">{t.description_uz}</Label>
-                    <Textarea id="description_uz" placeholder={t.description_uz_placeholder} disabled={isLoading} />
-                </div>
+            <div className="grid gap-2">
+                <Label htmlFor="description_uz">{t.description_uz}</Label>
+                <Textarea id="description_uz" placeholder={t.description_uz_placeholder} disabled={isLoading} />
             </div>
              <div className="grid gap-2">
                 <Label htmlFor="price">{t.price}</Label>

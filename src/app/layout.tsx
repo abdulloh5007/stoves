@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Продажа котлов',
-  description: 'Приложение для продажи котлов',
+  title: 'Qozonlar savdosi',
+  description: 'Qozon sotish uchun ilova',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className="dark" style={{ colorScheme: 'dark' }}>
+    <html lang="uz" className="dark" style={{ colorScheme: 'dark' }}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

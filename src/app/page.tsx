@@ -26,81 +26,47 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Moon, Sun, UserCog } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-
-// Import translation files
-import ru from '@/locales/ru.json';
 import uz from '@/locales/uz.json';
 
-const translations = { ru, uz };
+const t = uz.home;
 
 // Boiler type definition
 interface Boiler {
   id: string;
-  name: { [key: string]: string };
-  description: { [key: string]: string };
+  name: string;
+  description: string;
   price: number;
   imageUrl: string;
 }
 
-// Mock data for boilers with translations
+// Mock data for boilers
 const fakeBoilers: Boiler[] = [
   {
     id: 'boiler-1',
-    name: {
-      ru: 'Котел "Теплодар-1"',
-      uz: '"Teplodar-1" qozoni',
-    },
+    name: '"Teplodar-1" qozoni',
     price: 150000,
-    description: {
-      ru: 'Надежный и эффективный угольный котел для вашего дома.',
-      uz: 'Uyingiz uchun ishonchli va samarali ko\'mirli qozon.',
-    },
+    description: 'Uyingiz uchun ishonchli va samarali ko\'mirli qozon.',
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: 'boiler-2',
-    name: {
-      ru: 'Котел "Пламя-2"',
-      uz: '"Plamya-2" qozoni',
-    },
+    name: '"Plamya-2" qozoni',
     price: 220000,
-    description: {
-      ru: 'Современный газовый котел с высоким КПД и автоматикой.',
-      uz: 'Yuqori samaradorlik va avtomatikaga ega zamonaviy gaz qozoni.',
-    },
+    description: 'Yuqori samaradorlik va avtomatikaga ega zamonaviy gaz qozoni.',
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: 'boiler-3',
-    name: {
-      ru: 'Котел "Уют-3"',
-      uz: '"Uyut-3" qozoni',
-    },
+    name: '"Uyut-3" qozoni',
     price: 185000,
-    description: {
-      ru: 'Компактный электрический котел, идеален для небольших помещений.',
-      uz: 'Kichik xonalar uchun ideal bo\'lgan ixcham elektr qozon.',
-    },
+    description: 'Kichik xonalar uchun ideal bo\'lgan ixcham elektr qozon.',
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: 'boiler-4',
-    name: {
-      ru: 'Котел "Гигант-4"',
-      uz: '"Gigant-4" qozoni',
-    },
+    name: '"Gigant-4" qozoni',
     price: 310000,
-    description: {
-      ru: 'Мощный промышленный котел для отопления больших площадей.',
-      uz: 'Katta maydonlarni isitish uchun kuchli sanoat qozoni.',
-    },
+    description: 'Katta maydonlarni isitish uchun kuchli sanoat qozoni.',
     imageUrl: 'https://placehold.co/600x400.png',
   },
 ];
@@ -119,15 +85,10 @@ export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const [theme, setTheme] = useState('dark');
-  const [language, setLanguage] = useState('ru');
-
-  const t = translations[language as keyof typeof translations].home;
 
   useEffect(() => {
     const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
     setTheme(savedTheme);
-    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('language') || 'ru' : 'ru';
-    setLanguage(savedLang);
   }, []);
 
   useEffect(() => {
@@ -140,11 +101,6 @@ export default function Home() {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
-  
-  const handleLanguageChange = (lang: string) => {
-    setLanguage(lang);
-    localStorage.setItem('language', lang);
-  };
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -187,15 +143,6 @@ export default function Home() {
       <header className="container mx-auto py-4 px-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-foreground">{t.siteTitle}</h1>
         <div className="flex items-center gap-4">
-          <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-[80px]">
-              <SelectValue placeholder={t.language} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ru">RU</SelectItem>
-              <SelectItem value="uz">UZ</SelectItem>
-            </SelectContent>
-          </Select>
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -218,7 +165,7 @@ export default function Home() {
                 <CardHeader className="p-0">
                   <Image
                     src={boiler.imageUrl}
-                    alt={boiler.name[language]}
+                    alt={boiler.name}
                     width={600}
                     height={400}
                     className="object-cover w-full h-48"
@@ -226,9 +173,9 @@ export default function Home() {
                   />
                 </CardHeader>
                 <CardContent className="p-4 flex-grow">
-                  <CardTitle className="text-xl mb-2">{boiler.name[language]}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{boiler.name}</CardTitle>
                   <CardDescription className="text-base text-muted-foreground">
-                    {boiler.description[language]}
+                    {boiler.description}
                   </CardDescription>
                 </CardContent>
                 <CardFooter className="p-4 flex justify-between items-center">
@@ -246,7 +193,7 @@ export default function Home() {
           {selectedBoiler && (
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>{t.requestTitle} {selectedBoiler.name[language]}</DialogTitle>
+                <DialogTitle>{t.requestTitle} {selectedBoiler.name}</DialogTitle>
                 <DialogDescription>
                   {t.requestDescription}
                 </DialogDescription>

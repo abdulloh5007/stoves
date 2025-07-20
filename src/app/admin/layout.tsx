@@ -2,17 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Loader2, LogOut, Menu, Moon, Sun, Home, List, PlusSquare } from 'lucide-react';
+import { Loader2, LogOut, Menu, Moon, Sun, List, PlusSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
 
-import ru from '@/locales/ru.json';
 import uz from '@/locales/uz.json';
 
-const translations = { ru, uz };
+const t = uz.admin;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -20,8 +18,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState('dark');
-  const [language, setLanguage] = useState('ru');
-  const t = translations[language as keyof typeof translations].admin;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -29,9 +25,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
       document.documentElement.style.colorScheme = savedTheme;
-
-      const savedLang = localStorage.getItem('language') || 'ru';
-      setLanguage(savedLang);
 
       const loggedInStatus = sessionStorage.getItem('isLoggedIn') === 'true';
       setIsLoggedIn(loggedInStatus);
@@ -46,11 +39,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     }
   }, [pathname, router]);
-
-  const handleLanguageChange = (lang: string) => {
-    setLanguage(lang);
-    localStorage.setItem('language', lang);
-  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -87,66 +75,57 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const navContent = (
-    <nav className="grid gap-4 text-lg font-medium p-4">
-       <div className="grid grid-cols-2 gap-4">
-         <Link href="/admin/requests" passHref>
-          <Card className="hover:bg-accent cursor-pointer">
-            <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
-              <List className="h-8 w-8 mb-2" />
-              <span className="text-center">{t.requests}</span>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/admin/create-boiler" passHref>
-          <Card className="hover:bg-accent cursor-pointer">
-              <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
-                  <PlusSquare className="h-8 w-8 mb-2" />
-                  <span className="text-center">{t.createBoiler}</span>
-              </CardContent>
-          </Card>
-        </Link>
-      </div>
-    </nav>
+    <div className="flex flex-col justify-between h-full p-4">
+        <nav className="grid gap-4 text-lg font-medium">
+           <div className="grid grid-cols-2 gap-4">
+             <Link href="/admin/requests" passHref>
+              <Card className="hover:bg-accent cursor-pointer">
+                <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+                  <List className="h-8 w-8 mb-2" />
+                  <span className="text-center">{t.requests}</span>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/admin/create-boiler" passHref>
+              <Card className="hover:bg-accent cursor-pointer">
+                  <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+                      <PlusSquare className="h-8 w-8 mb-2" />
+                      <span className="text-center">{t.createBoiler}</span>
+                  </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </nav>
+        <Button variant="outline" size="sm" onClick={handleLogout} className="mt-auto">
+            <LogOut className="mr-2 h-4 w-4" />
+            {t.logout}
+        </Button>
+    </div>
   );
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button size="icon" variant="outline">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="pt-16">
-            {navContent}
-          </SheetContent>
-        </Sheet>
-        
         <h1 className="text-lg font-semibold md:text-xl">
            <Link href="/admin/requests">{t.dashboard}</Link>
         </h1>
-
         <div className="ml-auto flex items-center gap-2">
-          <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-[80px]">
-              <SelectValue placeholder={t.language} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ru">RU</SelectItem>
-              <SelectItem value="uz">UZ</SelectItem>
-            </SelectContent>
-          </Select>
           <Button variant="outline" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            {t.logout}
-          </Button>
+          <Sheet>
+              <SheetTrigger asChild>
+                <Button size="icon" variant="outline">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="pt-16">
+                {navContent}
+              </SheetContent>
+            </Sheet>
         </div>
       </header>
       <main className="flex-1 gap-4 p-4 sm:px-6 sm:py-6 md:gap-8">

@@ -12,8 +12,7 @@
     "submitButton": "Yuborish",
     "successToastTitle": "Muvaffaqiyatli!",
     "successToastDescription": "Sizning arizangiz yuborildi!",
-    "adminLogin": "Admin uchun kirish",
-    "language": "Til"
+    "adminLogin": "Admin uchun kirish"
   },
   "admin": {
     "dashboard": "Boshqaruv paneli",
@@ -21,7 +20,6 @@
     "requests": "Arizalar",
     "createBoiler": "Qozon yaratish",
     "logout": "Chiqish",
-    "language": "Til",
     "welcome": "Xush kelibsiz!",
     "stats": "Statistika",
     "totalApplications": "Jami arizalar",
@@ -40,13 +38,9 @@
   "createBoiler": {
     "title": "Yangi qozon yaratish",
     "description": "Katalogga yangi qozon qo'shish uchun barcha maydonlarni to'ldiring.",
-    "name_ru": "Nomi (RU)",
-    "name_ru_placeholder": "Masalan, Котел 'Пламя-5'",
-    "name_uz": "Nomi (UZ)",
+    "name_uz": "Nomi",
     "name_uz_placeholder": "Masalan, 'Plamya-5' qozoni",
-    "description_ru": "Tavsif (RU)",
-    "description_ru_placeholder": "Qozonning xususiyatlarini tasvirlab bering...",
-    "description_uz": "Tavsif (UZ)",
+    "description_uz": "Tavsif",
     "description_uz_placeholder": "Qozonning xususiyatlarini tasvirlab bering...",
     "price": "Narxi (UZS)",
     "image": "Rasm",

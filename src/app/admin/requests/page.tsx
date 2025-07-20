@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import ru from '@/locales/ru.json';
 import uz from '@/locales/uz.json';
 
-const translations = { ru, uz };
+const t = uz.requests;
 
 // Mock data for requests
 const fakeRequests = [
@@ -19,22 +17,13 @@ const fakeRequests = [
 ];
 
 const statusMap = {
-  new: { text: { ru: 'Новая', uz: 'Yangi' }, variant: 'destructive' as const },
-  contacted: { text: { ru: 'Связались', uz: 'Aloqaga chiqildi' }, variant: 'secondary' as const },
-  done: { text: { ru: 'Завершено', uz: 'Bajarildi' }, variant: 'default' as const },
+  new: { text: 'Yangi', variant: 'destructive' as const },
+  contacted: { text: 'Aloqaga chiqildi', variant: 'secondary' as const },
+  done: { text: 'Bajarildi', variant: 'default' as const },
 };
 
 
 export default function RequestsPage() {
-  const [language, setLanguage] = useState('ru');
-
-  useEffect(() => {
-    const savedLang = localStorage.getItem('language') || 'ru';
-    setLanguage(savedLang);
-  }, []);
-
-  const t = translations[language as keyof typeof translations].requests;
-  const currentLang = language as keyof typeof translations;
 
   return (
     <Card>
@@ -64,7 +53,7 @@ export default function RequestsPage() {
                 <TableCell>{request.offeredPrice}</TableCell>
                 <TableCell>
                   <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
-                    {statusMap[request.status as keyof typeof statusMap].text[currentLang]}
+                    {statusMap[request.status as keyof typeof statusMap].text}
                   </Badge>
                 </TableCell>
               </TableRow>
