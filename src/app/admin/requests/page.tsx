@@ -26,6 +26,16 @@ const statusMap = {
   done: { text: 'Bajarildi', variant: 'default' as const },
 };
 
+// Helper to format numbers with spaces
+const formatPrice = (priceString: string) => {
+    const parts = priceString.split(' ');
+    const numberPart = parts[0];
+    const currencyPart = parts.length > 1 ? ` ${parts.slice(1).join(' ')}` : '';
+    const formattedNumber = numberPart.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return `${formattedNumber}${currencyPart}`;
+};
+
+
 type ViewMode = 'table' | 'card';
 
 export default function RequestsPage() {
@@ -52,7 +62,7 @@ export default function RequestsPage() {
                 <TableCell>{request.boilerName}</TableCell>
                 <TableCell>{request.customerName}</TableCell>
                 <TableCell>{request.phone}</TableCell>
-                <TableCell>{request.offeredPrice}</TableCell>
+                <TableCell>{formatPrice(request.offeredPrice)}</TableCell>
                 <TableCell>
                   <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
                     {statusMap[request.status as keyof typeof statusMap].text}
@@ -88,7 +98,7 @@ export default function RequestsPage() {
                         <TableCell>{request.boilerName}</TableCell>
                         <TableCell>{request.customerName}</TableCell>
                         <TableCell>{request.phone}</TableCell>
-                        <TableCell>{request.offeredPrice}</TableCell>
+                        <TableCell>{formatPrice(request.offeredPrice)}</TableCell>
                         <TableCell>
                         <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
                             {statusMap[request.status as keyof typeof statusMap].text}
@@ -123,7 +133,7 @@ export default function RequestsPage() {
                     </div>
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">{t.price}</span>
-                        <span>{request.offeredPrice}</span>
+                        <span>{formatPrice(request.offeredPrice)}</span>
                     </div>
                 </CardContent>
             </Card>
