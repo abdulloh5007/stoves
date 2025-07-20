@@ -42,10 +42,12 @@ export default function AdminLayout({
   const t = translations[language as keyof typeof translations];
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-    const savedLang = localStorage.getItem('language') || 'ru';
-    setLanguage(savedLang);
+    if (typeof window !== 'undefined') {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        const savedLang = localStorage.getItem('language') || 'ru';
+        setLanguage(savedLang);
+    }
   }, []);
 
   useEffect(() => {
@@ -62,12 +64,16 @@ export default function AdminLayout({
       document.documentElement.classList.remove('dark');
       document.documentElement.style.colorScheme = 'light';
     }
-    localStorage.setItem('theme', theme);
+     if (typeof window !== 'undefined') {
+        localStorage.setItem('theme', theme);
+    }
   }, [theme]);
   
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
-    localStorage.setItem('language', lang);
+     if (typeof window !== 'undefined') {
+        localStorage.setItem('language', lang);
+    }
   };
 
   const toggleTheme = () => {
