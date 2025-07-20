@@ -15,11 +15,11 @@ const t = uz.requests;
 
 // Mock data for requests
 export const fakeRequests = [
-  { id: 1, boilerName: 'Котел "Теплодар-1"', customerName: 'Иван Иванов', phone: '+998 90 123-45-67', offeredPrice: '145000', status: 'new', date: '2024-07-28T10:00:00Z', address: '' },
-  { id: 2, boilerName: 'Котел "Пламя-2"', customerName: 'Алишер Усманов', phone: '+998 91 234-56-78', offeredPrice: '220000', status: 'contacted', date: '2024-07-28T11:30:00Z', address: 'Toshkent, Amir Temur ko\'chasi, 1' },
-  { id: 3, boilerName: 'Котел "Уют-3"', customerName: 'Елена Петрова', phone: '+998 93 345-67-89', offeredPrice: '180000', status: 'done', date: '2024-07-27T15:00:00Z', address: '' },
-  { id: 4, boilerName: 'Котел "Гигант-4"', customerName: 'Сардор Камилов', phone: '+998 94 456-78-90', offeredPrice: '300000', status: 'new', date: '2024-07-26T09:00:00Z', address: '' },
-  { id: 5, boilerName: 'Котел "Теплодар-1"', customerName: 'Ольга Сидорова', phone: '+998 99 567-89-01', offeredPrice: '150000', status: 'new', date: '2024-07-25T18:45:00Z', address: '' },
+  { id: 1, boilerName: 'Котел "Теплодар-1"', customerName: 'Иван Иванов', phone: '+998 90 123-45-67', offeredPrice: '145000', status: 'new' as const, date: '2024-07-28T10:00:00Z', address: '' },
+  { id: 2, boilerName: 'Котел "Пламя-2"', customerName: 'Алишер Усманов', phone: '+998 91 234-56-78', offeredPrice: '220000', status: 'contacted' as const, date: '2024-07-28T11:30:00Z', address: 'Toshkent, Amir Temur ko\'chasi, 1' },
+  { id: 3, boilerName: 'Котел "Уют-3"', customerName: 'Елена Петрова', phone: '+998 93 345-67-89', offeredPrice: '180000', status: 'done' as const, date: '2024-07-27T15:00:00Z', address: '' },
+  { id: 4, boilerName: 'Котел "Гигант-4"', customerName: 'Сардор Камилов', phone: '+998 94 456-78-90', offeredPrice: '300000', status: 'new' as const, date: '2024-07-26T09:00:00Z', address: '' },
+  { id: 5, boilerName: 'Котел "Теплодар-1"', customerName: 'Ольга Сидорова', phone: '+998 99 567-89-01', offeredPrice: '150000', status: 'new' as const, date: '2024-07-25T18:45:00Z', address: '' },
 ];
 
 export const statusMap = {
@@ -36,7 +36,6 @@ const formatPrice = (priceString: string) => {
     return `${formattedNumber} UZS`;
 };
 
-
 type ViewMode = 'table' | 'card';
 
 export default function RequestsPage() {
@@ -48,76 +47,42 @@ export default function RequestsPage() {
   };
 
   const TableView = () => (
-    <Card className="hidden md:block">
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>{t.boilerName}</TableHead>
-              <TableHead>{t.customerName}</TableHead>
-              <TableHead>{t.phone}</TableHead>
-              <TableHead>{t.price}</TableHead>
-              <TableHead>{t.status}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {fakeRequests.map((request) => (
-              <TableRow key={request.id} onClick={() => handleRowClick(request.id)} className="cursor-pointer">
-                <TableCell>{request.id}</TableCell>
-                <TableCell>{request.boilerName}</TableCell>
-                <TableCell>{request.customerName}</TableCell>
-                <TableCell>{request.phone}</TableCell>
-                <TableCell>{formatPrice(request.offeredPrice)}</TableCell>
-                <TableCell>
-                  <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
-                    {statusMap[request.status as keyof typeof statusMap].text}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-
-  const MobileTableView = () => (
-     <Card className="md:hidden">
+    <Card>
         <CardContent className="p-0">
-            <div className="w-full overflow-x-auto">
-                <Table className="min-w-[600px]">
-                <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>{t.boilerName}</TableHead>
-                      <TableHead>{t.customerName}</TableHead>
-                      <TableHead>{t.phone}</TableHead>
-                      <TableHead>{t.price}</TableHead>
-                      <TableHead>{t.status}</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {fakeRequests.map((request) => (
-                    <TableRow key={request.id} onClick={() => handleRowClick(request.id)} className="cursor-pointer">
-                        <TableCell>{request.id}</TableCell>
-                        <TableCell>{request.boilerName}</TableCell>
-                        <TableCell>{request.customerName}</TableCell>
-                        <TableCell>{request.phone}</TableCell>
-                        <TableCell>{formatPrice(request.offeredPrice)}</TableCell>
-                        <TableCell>
-                        <Badge variant={statusMap[request.status as keyof typeof statusMap].variant}>
-                            {statusMap[request.status as keyof typeof statusMap].text}
-                        </Badge>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
+            <div className="overflow-x-auto">
+                <Table className="min-w-[700px]">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>{t.boilerName}</TableHead>
+                            <TableHead>{t.customerName}</TableHead>
+                            <TableHead>{t.phone}</TableHead>
+                            <TableHead>{t.price}</TableHead>
+                            <TableHead>{t.status}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {fakeRequests.map((request) => (
+                            <TableRow key={request.id} onClick={() => handleRowClick(request.id)} className="cursor-pointer">
+                                <TableCell>{request.id}</TableCell>
+                                <TableCell>{request.boilerName}</TableCell>
+                                <TableCell>{request.customerName}</TableCell>
+                                <TableCell>{request.phone}</TableCell>
+                                <TableCell>{formatPrice(request.offeredPrice)}</TableCell>
+                                <TableCell>
+                                    <Badge variant={statusMap[request.status].variant}>
+                                        {statusMap[request.status].text}
+                                    </Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </div>
         </CardContent>
-     </Card>
-  );
+    </Card>
+);
+
 
   const CardView = () => (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -180,15 +145,11 @@ export default function RequestsPage() {
             </div>
         </div>
 
-        <div>
-            {viewMode === 'table' ? (
-                <>
-                    <TableView />
-                    <MobileTableView />
-                </>
-            ) : (
-                <CardView />
-            )}
+        <div className="hidden md:block">
+            {viewMode === 'table' ? <TableView /> : <CardView />}
+        </div>
+        <div className="md:hidden">
+            <CardView />
         </div>
     </div>
   );
