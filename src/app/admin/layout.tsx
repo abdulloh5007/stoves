@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import { Loader2, LogOut, Menu, Moon, Sun, Home, List, PlusSquare } from 'lucide-react';
@@ -37,6 +37,7 @@ export default function AdminLayout({
 }) {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
+  const pathname = usePathname();
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('ru');
   const t = translations[language as keyof typeof translations];

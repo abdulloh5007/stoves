@@ -48,7 +48,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [signInWithEmailAndPassword, signedInUser, loading, error] = useSignInWithEmailAndPassword(auth);
-  const [currentUser, authLoading] = useAuthState(auth);
+  const [user, authLoading] = useAuthState(auth);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -68,23 +68,15 @@ export default function LoginPage() {
   }, [error, toast]);
   
   useEffect(() => {
-    if (signedInUser) {
+    if (signedInUser || (!authLoading && user)) {
        toast({
         title: translations.ru.successTitle,
         description: translations.ru.successDescription,
       });
       router.push('/admin');
     }
-  },[signedInUser, router, toast]);
+  },[signedInUser, user, authLoading, router, toast]);
 
-  // If user is already logged in, redirect to admin dashboard
-  useEffect(() => {
-    if (!authLoading && currentUser) {
-      router.push('/admin');
-    }
-  }, [currentUser, authLoading, router]);
-
-  // Show a loader while checking auth state if user is not yet determined
   if (authLoading) {
      return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -93,13 +85,11 @@ export default function LoginPage() {
     );
   }
 
-  // If user is already logged in, they will be redirected by the useEffect above.
-  // This prevents the login form from flashing before redirect.
-  if (currentUser) {
-    return null;
+  // Не рендерим форму, если пользователь уже вошел и идет перенаправление
+  if (user) {
+    return null; 
   }
-  
-  // Hardcoding language for now, will be dynamic later
+
   const t = translations['ru'];
 
   return (
