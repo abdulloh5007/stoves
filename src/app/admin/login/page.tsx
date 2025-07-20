@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 const translations = {
   ru: {
@@ -42,15 +43,12 @@ const translations = {
   },
 };
 
-// Dummy language state for now
-const language = 'ru';
-const t = translations[language];
-
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
+  const [signInWithEmailAndPassword, signedInUser, loading, error] = useSignInWithEmailAndPassword(auth);
+  const [currentUser, authLoading] = useAuthState(auth);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -62,22 +60,47 @@ export default function LoginPage() {
   useEffect(() => {
     if (error) {
       toast({
-        title: t.errorTitle,
+        title: translations.ru.errorTitle,
         description: error.message,
         variant: 'destructive',
       });
     }
   }, [error, toast]);
-
+  
   useEffect(() => {
-    if (user) {
-      toast({
-        title: t.successTitle,
-        description: t.successDescription,
+    if (signedInUser) {
+       toast({
+        title: translations.ru.successTitle,
+        description: translations.ru.successDescription,
       });
       router.push('/admin');
     }
-  }, [user, router, toast]);
+  },[signedInUser, router, toast]);
+
+  // If user is already logged in, redirect to admin dashboard
+  useEffect(() => {
+    if (!authLoading && currentUser) {
+      router.push('/admin');
+    }
+  }, [currentUser, authLoading, router]);
+
+  // Show a loader while checking auth state if user is not yet determined
+  if (authLoading) {
+     return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If user is already logged in, they will be redirected by the useEffect above.
+  // This prevents the login form from flashing before redirect.
+  if (currentUser) {
+    return null;
+  }
+  
+  // Hardcoding language for now, will be dynamic later
+  const t = translations['ru'];
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
