@@ -14,6 +14,12 @@ import { collection, addDoc } from 'firebase/firestore';
 
 const t = uz.createBoiler;
 
+const formatPrice = (price: number | string) => {
+  const num = typeof price === 'string' ? parseFloat(price.replace(/\s/g, '')) : price;
+  if (isNaN(num)) return '';
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
+
 export default function CreateBoilerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
@@ -27,6 +33,13 @@ export default function CreateBoilerPage() {
     setDescription('');
     setPrice('');
     setImageUrl('');
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\s/g, '');
+    if (/^\d*$/.test(rawValue)) {
+      setPrice(formatPrice(rawValue));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,7 +58,7 @@ export default function CreateBoilerPage() {
         await addDoc(collection(db, 'boilers'), {
             name: name,
             description: description,
-            price: Number(price),
+            price: Number(price.replace(/\s/g, '')),
             imageUrl: imageUrl,
         });
         
@@ -86,7 +99,7 @@ export default function CreateBoilerPage() {
               </div>
               <div className="grid gap-2">
                   <Label htmlFor="price">{t.price}</Label>
-                  <Input id="price" type="number" placeholder="250000" disabled={isLoading} value={price} onChange={(e) => setPrice(e.target.value)} />
+                  <Input id="price" type="text" inputMode="numeric" placeholder="250 000" disabled={isLoading} value={price} onChange={handlePriceChange} />
               </div>
               <div className="grid gap-2">
                   <Label htmlFor="image">{t.image}</Label>

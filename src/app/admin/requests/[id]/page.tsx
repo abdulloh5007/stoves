@@ -283,7 +283,7 @@ export default function RequestDetailPage() {
                             disabled={currentStatus === 'done' || currentStatus === 'cancelled'}
                         >
                            <XCircle className="mr-2 h-4 w-4" />
-                            Otmenen
+                            Rad etish
                         </Button>
                     </CardContent>
                  </Card>

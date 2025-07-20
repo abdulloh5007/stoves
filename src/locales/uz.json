@@ -1,7 +1,7 @@
 {
   "home": {
-    "siteTitle": "Qozonlar savdosi",
-    "siteDescription": "Uyingiz uchun eng yaxshi qozonni tanlang",
+    "siteTitle": "Katyollar savdosi",
+    "siteDescription": "Uyingiz uchun eng yaxshi katyolni tanlang",
     "buyButton": "Sotib olish",
     "requestTitle": "Buyurtma",
     "requestDescription": "Buyurtma yuborish uchun quyidagi shaklni to'ldiring.",
@@ -18,35 +18,35 @@
     "dashboard": "Boshqaruv paneli",
     "main": "Asosiy",
     "requests": "Arizalar",
-    "createBoiler": "Qozon yaratish",
+    "createBoiler": "Katyol yaratish",
     "logout": "Chiqish",
     "welcome": "Xush kelibsiz!",
     "stats": "Statistika",
     "totalApplications": "Jami arizalar",
-    "totalBoilers": "Jami qozonlar",
+    "totalBoilers": "Jami katyollar",
     "newApplications": "Yangi arizalar"
   },
    "requests": {
     "title": "Arizalar",
-    "description": "Qozon sotib olish bo'yicha barcha arizalar ro'yxati.",
-    "boilerName": "Qozon nomi",
+    "description": "Katyol sotib olish bo'yicha barcha arizalar ro'yxati.",
+    "boilerName": "Katyol nomi",
     "customerName": "Mijoz ismi",
     "phone": "Telefon",
     "price": "Taklif qilingan narx",
     "status": "Holat"
   },
   "createBoiler": {
-    "title": "Yangi qozon yaratish",
-    "description": "Katalogga yangi qozon qo'shish uchun barcha maydonlarni to'ldiring.",
+    "title": "Yangi katyol yaratish",
+    "description": "Katalogga yangi katyol qo'shish uchun barcha maydonlarni to'ldiring.",
     "name_uz": "Nomi",
-    "name_uz_placeholder": "Masalan, 'Plamya-5' qozoni",
+    "name_uz_placeholder": "Masalan, 'Plamya-5' katyolni",
     "description_uz": "Tavsif",
-    "description_uz_placeholder": "Qozonning xususiyatlarini tasvirlab bering...",
+    "description_uz_placeholder": "Katyolning xususiyatlarini tasvirlab bering...",
     "price": "Narxi (UZS)",
     "image": "Rasm",
-    "submitButton": "Qozon yaratish",
+    "submitButton": "Katyol yaratish",
     "successTitle": "Muvaffaqiyatli!",
-    "successDescription": "Yangi qozon muvaffaqiyatli yaratildi."
+    "successDescription": "Yangi katyol muvaffaqiyatli yaratildi."
   },
   "login": {
     "title": "Administrator uchun kirish",
