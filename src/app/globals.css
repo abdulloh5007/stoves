@@ -38,7 +38,7 @@ body {
   .dark {
     --background: 210 29% 21%; /* #27374D */
     --foreground: 210 22% 84%; /* #DDE6ED */
-    --card: 210 29% 29%; /* #3A4E68 slightly lighter than bg */
+    --card: 210 29% 25%; /* slightly lighter than bg */
     --card-foreground: 210 22% 84%;
     --popover: 210 29% 21%;
     --popover-foreground: 210 22% 84%;

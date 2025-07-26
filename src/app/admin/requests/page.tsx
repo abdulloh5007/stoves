@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import uz from '@/locales/uz.json';
 import { List, LayoutGrid, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -35,7 +34,7 @@ export const statusMap = {
   new: { text: 'Yangi', className: 'bg-blue-500 text-white' },
   contacted: { text: 'Aloqaga chiqildi', className: 'bg-yellow-500 text-black' },
   done: { text: 'Bajarildi', className: 'bg-green-500 text-white' },
-  cancelled: { text: 'Otmenen', className: 'bg-gray-600 text-white' },
+  cancelled: { text: 'Rad etildi', className: 'bg-red-600 text-white' },
 };
 
 const formatPrice = (priceString: string) => {
@@ -55,7 +54,7 @@ const TableViewSkeleton = () => (
                 <Table className="min-w-[1024px]">
                     <TableHeader>
                         <TableRow>
-                            {[...Array(6)].map((_, i) => (
+                            {[...Array(5)].map((_, i) => (
                                 <TableHead key={i}><Skeleton className="h-5 w-20" /></TableHead>
                             ))}
                         </TableRow>
@@ -63,7 +62,6 @@ const TableViewSkeleton = () => (
                     <TableBody>
                         {[...Array(5)].map((_, i) => (
                             <TableRow key={i}>
-                                <TableCell><Skeleton className="h-5 w-12" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-28" /></TableCell>
@@ -151,7 +149,6 @@ export default function RequestsPage() {
                 <Table className="min-w-[1024px]">
                     <TableHeader>
                         <TableRow>
-                            <TableHead>ID</TableHead>
                             <TableHead>{t.boilerName}</TableHead>
                             <TableHead>{t.customerName}</TableHead>
                             <TableHead>{t.phone}</TableHead>
@@ -162,7 +159,6 @@ export default function RequestsPage() {
                     <TableBody>
                         {requests.map((request) => (
                             <TableRow key={request.id} onClick={() => handleRowClick(request.id)} className="cursor-pointer">
-                                <TableCell className="font-mono text-xs">...{request.id.slice(-5)}</TableCell>
                                 <TableCell>{request.boilerName}</TableCell>
                                 <TableCell>{request.customerName}</TableCell>
                                 <TableCell>{request.phone}</TableCell>
@@ -184,29 +180,27 @@ export default function RequestsPage() {
   const CardView = () => (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {requests.map((request) => (
-            <Link href={`/admin/requests/${request.id}`} key={request.id} passHref>
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                      <CardTitle className="text-base flex justify-between items-center">
-                          <span>{request.boilerName}</span>
-                          <Badge className={cn(statusMap[request.status as keyof typeof statusMap].className)}>
-                              {statusMap[request.status as keyof typeof statusMap].text}
-                          </Badge>
-                      </CardTitle>
-                      <CardDescription>{request.customerName}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-2 text-sm">
-                      <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t.phone}</span>
-                          <span>{request.phone}</span>
-                      </div>
-                      <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t.price}</span>
-                          <span>{formatPrice(request.offeredPrice)}</span>
-                      </div>
-                  </CardContent>
-              </Card>
-            </Link>
+            <Card key={request.id} onClick={() => handleRowClick(request.id)} className="cursor-pointer hover:shadow-lg transition-shadow">
+                <CardHeader>
+                    <CardTitle className="text-base flex justify-between items-center">
+                        <span className="truncate pr-2">{request.boilerName}</span>
+                        <Badge className={cn("flex-shrink-0", statusMap[request.status as keyof typeof statusMap].className)}>
+                            {statusMap[request.status as keyof typeof statusMap].text}
+                        </Badge>
+                    </CardTitle>
+                    <CardDescription>{request.customerName}</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-2 text-sm">
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t.phone}</span>
+                        <a href={`tel:${request.phone}`} className="hover:underline" onClick={(e) => e.stopPropagation()}>{request.phone}</a>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t.price}</span>
+                        <span>{formatPrice(request.offeredPrice)}</span>
+                    </div>
+                </CardContent>
+            </Card>
         ))}
     </div>
   );
@@ -223,10 +217,10 @@ export default function RequestsPage() {
     <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-                <p className="text-muted-foreground">{t.description}</p>
+                <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t.title}</h1>
+                <p className="text-muted-foreground text-sm md:text-base">{t.description}</p>
             </div>
-            <div className="flex items-center gap-2 rounded-md bg-muted p-1">
+            <div className="hidden md:flex items-center gap-2 rounded-md bg-muted p-1">
                 <Button
                     variant={viewMode === 'table' ? 'default' : 'ghost'}
                     size="icon"

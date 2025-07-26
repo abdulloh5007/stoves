@@ -23,7 +23,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Redirect if already logged in
-    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
       router.push('/admin');
     }
   }, [router]);
@@ -39,7 +39,7 @@ export default function LoginPage() {
 
     setTimeout(() => {
       if (email === adminEmail && password === adminPassword) {
-        sessionStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('isLoggedIn', 'true');
         toast({
           title: t.successTitle,
           description: t.successDescription,

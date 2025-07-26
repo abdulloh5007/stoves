@@ -189,8 +189,8 @@ export default function Home() {
   return (
     <div className="bg-background min-h-screen">
       <header className="container mx-auto py-4 px-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-foreground">{t.siteTitle}</h1>
-        <div className="flex items-center gap-4">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">{t.siteTitle}</h1>
+        <div className="flex items-center gap-2 md:gap-4">
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -198,14 +198,14 @@ export default function Home() {
           </Button>
           <Link href="/admin/login" passHref>
              <Button variant="outline" size="sm">
-                <UserCog className="mr-2 h-4 w-4" />
-                {t.adminLogin}
+                <UserCog className="mr-0 md:mr-2 h-4 w-4" />
+                <span className="hidden md:inline">{t.adminLogin}</span>
              </Button>
           </Link>
         </div>
       </header>
       <main className="container mx-auto p-4">
-        <p className="text-lg text-muted-foreground mt-2 mb-8">{t.siteDescription}</p>
+        <p className="text-base md:text-lg text-muted-foreground mt-2 mb-8">{t.siteDescription}</p>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {dataLoading ? (
@@ -237,13 +237,13 @@ export default function Home() {
                     />
                     </CardHeader>
                     <CardContent className="p-4 flex-grow">
-                    <CardTitle className="text-xl mb-2">{boiler.name}</CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">
+                    <CardTitle className="text-lg md:text-xl mb-2">{boiler.name}</CardTitle>
+                    <CardDescription className="text-sm md:text-base text-muted-foreground">
                         {boiler.description}
                     </CardDescription>
                     </CardContent>
                     <CardFooter className="p-4 mt-auto flex flex-col items-start w-full gap-4">
-                        <p className="text-2xl font-semibold text-primary">
+                        <p className="text-xl md:text-2xl font-semibold text-primary">
                             {formatPrice(boiler.price)} UZS
                         </p>
                         <DialogTrigger asChild>

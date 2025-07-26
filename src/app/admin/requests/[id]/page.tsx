@@ -33,7 +33,7 @@ const formatDate = (timestamp: { seconds: number; nanoseconds: number; } | null 
 };
 
 const RequestDetailSkeleton = () => (
-    <div className="container mx-auto max-w-4xl">
+    <div className="container mx-auto max-w-4xl p-0">
         <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
                  <Card>
@@ -182,7 +182,7 @@ export default function RequestDetailPage() {
   const currentStatus = request.status;
 
   return (
-    <div className="container mx-auto max-w-4xl">
+    <div className="container mx-auto max-w-4xl p-0">
         <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
                  <Card>
@@ -193,8 +193,8 @@ export default function RequestDetailPage() {
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                                 <div>
-                                    <CardTitle className="text-2xl">{request.boilerName}</CardTitle>
-                                    <CardDescription>Ariza ...{request.id.slice(-5)}</CardDescription>
+                                    <CardTitle className="text-xl md:text-2xl">{request.boilerName}</CardTitle>
+                                    <CardDescription>Ariza</CardDescription>
                                 </div>
                            </div>
                            <Badge className={cn("text-sm", statusMap[currentStatus as keyof typeof statusMap].className)}>
@@ -216,7 +216,7 @@ export default function RequestDetailPage() {
                                 <Phone className="h-5 w-5 text-muted-foreground" />
                                 <div>
                                     <p className="text-muted-foreground">Telefon</p>
-                                    <p className="font-semibold">{request.phone}</p>
+                                    <a href={`tel:${request.phone}`} className="font-semibold hover:underline">{request.phone}</a>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
