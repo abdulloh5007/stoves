@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Qozonlar savdosi',
-  description: 'Qozon sotish uchun ilova',
+  title: 'Katyollar savdosi',
+  description: 'Katyol sotish uchun ilova',
 };
 
 export default function RootLayout({
