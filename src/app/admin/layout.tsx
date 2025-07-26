@@ -119,19 +119,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link href="/admin/requests" passHref>
                   <div className={cn(
                       "flex flex-col items-center justify-center gap-1 text-muted-foreground",
-                      { "text-primary": pathname.startsWith('/admin/requests')}
+                      { "bg-muted text-primary": pathname.startsWith('/admin/requests')}
                   )}>
                       <List className="h-5 w-5" />
-                      <span className="text-xs">{t.requests}</span>
+                      <span className="text-xs font-medium">{t.requests}</span>
                   </div>
               </Link>
               <Link href="/admin/create-boiler" passHref>
                    <div className={cn(
                       "flex flex-col items-center justify-center gap-1 text-muted-foreground",
-                      { "text-primary": pathname === '/admin/create-boiler'}
+                      { "bg-muted text-primary": pathname === '/admin/create-boiler'}
                   )}>
                       <PlusSquare className="h-5 w-5" />
-                      <span className="text-xs">{t.createBoiler}</span>
+                      <span className="text-xs font-medium">{t.createBoiler}</span>
                   </div>
               </Link>
           </div>

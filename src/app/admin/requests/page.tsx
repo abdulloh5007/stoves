@@ -215,12 +215,12 @@ export default function RequestsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t.title}</h1>
                 <p className="text-muted-foreground text-sm md:text-base">{t.description}</p>
             </div>
-            <div className="hidden md:flex items-center gap-2 rounded-md bg-muted p-1">
+             <div className="flex items-center gap-2 rounded-md bg-muted p-1 w-min">
                 <Button
                     variant={viewMode === 'table' ? 'default' : 'ghost'}
                     size="icon"

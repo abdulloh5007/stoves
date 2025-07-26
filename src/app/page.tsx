@@ -187,14 +187,16 @@ export default function Home() {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="container mx-auto py-4 px-4 flex justify-between items-center">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">{t.siteTitle}</h1>
-        <div className="flex items-center gap-2 md:gap-4">
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">{t.siteTitle}</h1>
+          <div className="flex items-center gap-2 md:gap-4">
+            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </div>
         </div>
       </header>
       <main className="container mx-auto p-4">
