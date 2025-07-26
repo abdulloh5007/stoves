@@ -220,28 +220,34 @@ export default function RequestsPage() {
                 <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t.title}</h1>
                 <p className="text-muted-foreground text-sm md:text-base">{t.description}</p>
             </div>
-             <div className="flex items-center gap-2 rounded-md bg-muted p-1 w-min">
-                <Button
-                    variant={viewMode === 'table' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setViewMode('table')}
-                    className={cn("h-8 w-8", {
-                        "bg-primary text-primary-foreground hover:bg-primary/90": viewMode === 'table'
-                    })}
+            <div className="flex items-center rounded-md bg-muted px-2 py-1 w-min">
+                <button
+                    onClick={() =>
+                    setViewMode((prev) => (prev === 'table' ? 'card' : 'table'))
+                    }
+                    className="relative h-8 w-14 flex items-center justify-between px-1 bg-primary/10 rounded transition-colors duration-300"
                 >
-                    <List className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant={viewMode === 'card' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setViewMode('card')}
-                    className={cn("h-8 w-8", {
-                        "bg-primary text-primary-foreground hover:bg-primary/90": viewMode === 'card'
-                    })}
-                >
-                    <LayoutGrid className="h-4 w-4" />
-                </Button>
+                    <List
+                    className={cn(
+                        'h-4 w-4 transition-opacity',
+                        viewMode === 'table' ? 'opacity-100' : 'opacity-30'
+                    )}
+                    />
+                    <LayoutGrid
+                    className={cn(
+                        'h-4 w-4 transition-opacity',
+                        viewMode === 'card' ? 'opacity-100' : 'opacity-30'
+                    )}
+                    />
+                    <span
+                    className={cn(
+                        'absolute top-1 h-6 w-6 bg-primary/20 rounded transition-transform duration-300',
+                        viewMode === 'card' ? 'translate-x-7' : '-translate-x-1'
+                    )}
+                    />
+                </button>
             </div>
+
         </div>
         
         {loading ? (
