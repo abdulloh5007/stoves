@@ -176,7 +176,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         </div>
       </header>
-      <main className="flex-1 gap-4 p-4 pb-20 sm:px-6 sm:py-6 md:gap-8 md:pb-4">
+      <main className="flex-1 container mx-auto p-4 pb-20 sm:px-6 sm:py-6 md:gap-8 md:pb-4">
         {children}
       </main>
       {isMobile && bottomNavContent}
