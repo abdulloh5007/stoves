@@ -21,12 +21,23 @@ const formatPrice = (price: number | string) => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
 
+// Simple URL validation
+const isValidUrl = (url: string) => {
+    try {
+        new URL(url);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
 export default function CreateBoilerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageError, setImageError] = useState(false);
   const { toast } = useToast();
 
   const resetForm = () => {
@@ -34,6 +45,7 @@ export default function CreateBoilerPage() {
     setDescription('');
     setPrice('');
     setImageUrl('');
+    setImageError(false);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,12 +55,29 @@ export default function CreateBoilerPage() {
     }
   };
 
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setImageUrl(url);
+    if (url === '' || isValidUrl(url)) {
+      setImageError(false);
+    }
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description || !price || !imageUrl) {
         toast({
             title: "Xatolik",
             description: "Iltimos, barcha maydonlarni to'ldiring.",
+            variant: "destructive"
+        });
+        return;
+    }
+    if (!isValidUrl(imageUrl)) {
+        toast({
+            title: "Xatolik",
+            description: "Rasm uchun URL noto'g'ri kiritilgan.",
             variant: "destructive"
         });
         return;
@@ -104,22 +133,23 @@ export default function CreateBoilerPage() {
               </div>
               <div className="grid gap-2">
                   <Label htmlFor="image">{t.image}</Label>
-                  <Input id="image" type="text" placeholder="https://example.com/image.png" disabled={isLoading} value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                  <Input id="image" type="url" placeholder="https://example.com/image.png" disabled={isLoading} value={imageUrl} onChange={handleImageUrlChange} />
               </div>
               {imageUrl && (
                 <div className="grid gap-2">
                     <Label>Rasm oldindan ko'rinishi</Label>
-                    <div className="relative aspect-video w-full max-w-sm rounded-md overflow-hidden border">
-                         <Image 
-                            src={imageUrl} 
-                            alt="Image preview" 
-                            fill={true}
-                            style={{objectFit: "contain"}}
-                            onError={(e) => {
-                                e.currentTarget.src = 'https://placehold.co/600x400/png?text=Noto`g`ri+URL';
-                                e.currentTarget.srcset = "";
-                            }}
-                         />
+                    <div className="relative aspect-video w-full max-w-sm rounded-md overflow-hidden border flex items-center justify-center bg-muted">
+                        {isValidUrl(imageUrl) && !imageError ? (
+                             <Image 
+                                src={imageUrl} 
+                                alt="Image preview" 
+                                fill={true}
+                                style={{objectFit: "contain"}}
+                                onError={() => setImageError(true)}
+                             />
+                        ) : (
+                             <div className="text-center text-destructive p-4">Noto'g'ri URL</div>
+                        )}
                     </div>
                 </div>
               )}
