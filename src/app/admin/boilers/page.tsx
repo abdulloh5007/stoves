@@ -118,7 +118,7 @@ export default function BoilersPage() {
             ))
         ) : (
             boilers.map((boiler) => (
-            <Card key={boiler.id} className="flex flex-col overflow-hidden relative group">
+            <Card key={boiler.id} className="flex flex-col overflow-hidden relative">
                 <div className="absolute top-2 right-2 z-10 flex gap-2">
                     <Button size="icon" variant="outline" className="h-8 w-8 bg-background/80 hover:bg-background" onClick={() => handleEdit(boiler.id)}>
                         <Pencil className="h-4 w-4" />
@@ -153,13 +153,17 @@ export default function BoilersPage() {
                       })}
                       className="w-full h-full cursor-pointer"
                     >
-                      <Image
-                          src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
-                          alt={boiler.name}
-                          fill
-                          className="object-cover"
-                          data-ai-hint="boiler heater"
-                      />
+                      {galleryData?.layoutId === `image-${boiler.id}` ? (
+                          <div className="w-full h-full bg-black" />
+                      ) : (
+                          <Image
+                              src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
+                              alt={boiler.name}
+                              fill
+                              className="object-cover"
+                              data-ai-hint="boiler heater"
+                          />
+                      )}
                    </motion.div>
                 </CardHeader>
                 <CardContent className="p-4 flex-grow">
