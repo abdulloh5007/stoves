@@ -18,7 +18,7 @@ import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Gallery } from '@/components/ui/gallery';
+import { Gallery, type GalleryProps } from '@/components/ui/gallery';
 import type { Boiler } from '@/app/page';
 import {
   AlertDialog,
@@ -32,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 const t = uz.boilers;
@@ -48,10 +49,7 @@ export default function BoilersPage() {
   const [boilers, setBoilers] = useState<Boiler[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const { toast } = useToast();
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [galleryTitle, setGalleryTitle] = useState('');
-  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryData, setGalleryData] = useState<Omit<GalleryProps, 'setGalleryData'> | null>(null);
   const router = useRouter();
 
 
@@ -74,14 +72,6 @@ export default function BoilersPage() {
     return () => unsubscribe();
   }, [toast]);
 
-  const handleImageClick = (boiler: Boiler) => {
-    if(boiler.imageUrls && boiler.imageUrls.length > 0) {
-      setGalleryImages(boiler.imageUrls);
-      setGalleryTitle(boiler.name);
-      setGalleryIndex(0);
-      setIsGalleryOpen(true);
-    }
-  };
 
   const handleDelete = async (boilerId: string) => {
       try {
@@ -129,7 +119,7 @@ export default function BoilersPage() {
         ) : (
             boilers.map((boiler) => (
             <Card key={boiler.id} className="flex flex-col overflow-hidden relative group">
-                <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-2 right-2 z-10 flex gap-2">
                     <Button size="icon" variant="outline" className="h-8 w-8 bg-background/80 hover:bg-background" onClick={() => handleEdit(boiler.id)}>
                         <Pencil className="h-4 w-4" />
                     </Button>
@@ -153,14 +143,24 @@ export default function BoilersPage() {
                         </AlertDialogContent>
                     </AlertDialog>
                 </div>
-                <CardHeader className="p-0 relative h-48 w-full cursor-pointer" onClick={() => handleImageClick(boiler)}>
-                  <Image
-                      src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
-                      alt={boiler.name}
-                      fill
-                      className="object-cover"
-                      data-ai-hint="boiler heater"
-                  />
+                <CardHeader className="p-0 relative h-48 w-full">
+                   <motion.div
+                      layoutId={`image-${boiler.id}`}
+                      onClick={() => setGalleryData({
+                          images: boiler.imageUrls,
+                          title: boiler.name,
+                          layoutId: `image-${boiler.id}`
+                      })}
+                      className="w-full h-full cursor-pointer"
+                    >
+                      <Image
+                          src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
+                          alt={boiler.name}
+                          fill
+                          className="object-cover"
+                          data-ai-hint="boiler heater"
+                      />
+                   </motion.div>
                 </CardHeader>
                 <CardContent className="p-4 flex-grow">
                 <CardTitle className="text-lg md:text-xl mb-2">{boiler.name}</CardTitle>
@@ -177,13 +177,10 @@ export default function BoilersPage() {
             ))
         )}
         </div>
-      <Gallery 
-        isOpen={isGalleryOpen} 
-        onClose={() => setIsGalleryOpen(false)}
-        images={galleryImages}
-        title={galleryTitle}
-        startIndex={galleryIndex}
-      />
+      <AnimatePresence>
+         {galleryData && <Gallery {...galleryData} setGalleryData={setGalleryData} />}
+      </AnimatePresence>
     </div>
   );
 }
+

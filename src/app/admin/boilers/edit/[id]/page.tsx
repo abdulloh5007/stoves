@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, X, Image as ImageIcon, ArrowLeft } from 'lucide-react';
+import { Loader2, Upload, X, Image as ImageIcon, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
@@ -16,6 +16,7 @@ import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Reorder } from 'framer-motion';
 
 const t = uz.createBoiler;
 const tBoilers = uz.boilers;
@@ -28,11 +29,13 @@ const formatPrice = (price: number | string) => {
 };
 
 interface ImageFile {
+  id: string;
   file: File;
   previewUrl: string;
 }
 
 interface ExistingImage {
+    id: string;
     url: string;
 }
 
@@ -66,7 +69,7 @@ export default function EditBoilerPage() {
             setName(data.name);
             setDescription(data.description);
             setPrice(formatPrice(data.price));
-            setImages((data.imageUrls || []).map((url: string) => ({ url })));
+            setImages((data.imageUrls || []).map((url: string) => ({ url, id: crypto.randomUUID() })));
         } else {
              toast({
                 title: "Xatolik",
@@ -90,9 +93,10 @@ export default function EditBoilerPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      const newFiles: ImageFile[] = Array.from(files).map(file => ({
+      const newFiles: ImageSource[] = Array.from(files).map(file => ({
         file,
         previewUrl: URL.createObjectURL(file),
+        id: crypto.randomUUID(),
       }));
 
       if (images.length + newFiles.length > MAX_IMAGES) {
@@ -106,12 +110,15 @@ export default function EditBoilerPage() {
       
       setImages(prev => [...prev, ...newFiles]);
     }
+     if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+  const removeImage = (idToRemove: string) => {
+    setImages(prev => prev.filter((image) => image.id !== idToRemove));
   };
-  
+
   const uploadImage = async (file: File): Promise<string | null> => {
     const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
     if (!apiKey) {
@@ -276,42 +283,40 @@ export default function EditBoilerPage() {
                     disabled={isLoading || images.length >= MAX_IMAGES} 
                     className="hidden" 
                 />
-                 <Button asChild variant="outline" type="button" disabled={isLoading || images.length >= MAX_IMAGES}>
-                    <Label htmlFor="image-upload" className="cursor-pointer">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Rasm tanlang
-                    </Label>
-                </Button>
+                 {images.length < MAX_IMAGES && (
+                     <Button asChild variant="outline" type="button" disabled={isLoading}>
+                        <Label htmlFor="image-upload" className="cursor-pointer">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Rasm tanlang
+                        </Label>
+                    </Button>
+                 )}
               </div>
                {images.length > 0 && (
-                <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative aspect-square w-full rounded-md overflow-hidden border group">
-                       <Image 
-                           src={isImageFile(image) ? image.previewUrl : image.url} 
-                           alt={`Preview ${index + 1}`}
-                           fill={true}
-                           style={{objectFit: "cover"}}
-                       />
-                       <Button 
-                         variant="destructive" 
-                         size="icon" 
-                         className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                         onClick={() => removeImage(index)}
-                         type="button"
-                       >
-                         <X className="h-4 w-4" />
-                       </Button>
-                    </div>
-                  ))}
-                  {Array.from({ length: MAX_IMAGES - images.length }).map((_, index) => (
-                      <div key={`placeholder-${index}`} 
-                           className="aspect-square w-full rounded-md border-2 border-dashed flex items-center justify-center bg-muted cursor-pointer"
-                           onClick={() => fileInputRef.current?.click()}>
-                           <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                  ))}
-                </div>
+                 <div className="grid gap-4 grid-cols-1">
+                    <Reorder.Group axis="x" values={images} onReorder={setImages} className="flex gap-4">
+                      {images.map((image) => (
+                        <Reorder.Item key={image.id} value={image} className="relative aspect-square w-24 h-24 rounded-md overflow-hidden border group cursor-grab active:cursor-grabbing">
+                           <Image 
+                               src={isImageFile(image) ? image.previewUrl : image.url} 
+                               alt={`Preview`}
+                               fill={true}
+                               style={{objectFit: "cover"}}
+                               draggable={false}
+                           />
+                           <Button 
+                             variant="destructive" 
+                             size="icon" 
+                             className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                             onClick={() => removeImage(image.id)}
+                             type="button"
+                           >
+                             <X className="h-4 w-4" />
+                           </Button>
+                        </Reorder.Item>
+                      ))}
+                    </Reorder.Group>
+                  </div>
               )}
           </CardContent>
           <CardFooter>

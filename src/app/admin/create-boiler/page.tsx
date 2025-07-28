@@ -14,6 +14,7 @@ import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import Image from 'next/image';
+import { Reorder } from 'framer-motion';
 
 const t = uz.createBoiler;
 const MAX_IMAGES = 4;
@@ -25,6 +26,7 @@ const formatPrice = (price: number | string) => {
 };
 
 interface ImageFile {
+  id: string;
   file: File;
   previewUrl: string;
 }
@@ -56,6 +58,7 @@ export default function CreateBoilerPage() {
     const files = e.target.files;
     if (files) {
       const newFiles: ImageFile[] = Array.from(files).map(file => ({
+        id: crypto.randomUUID(),
         file,
         previewUrl: URL.createObjectURL(file),
       }));
@@ -71,10 +74,14 @@ export default function CreateBoilerPage() {
       
       setImageFiles(prev => [...prev, ...newFiles]);
     }
+     // Reset file input to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  const removeImage = (index: number) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
+  const removeImage = (idToRemove: string) => {
+    setImageFiles(prev => prev.filter((imageFile) => imageFile.id !== idToRemove));
   };
   
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -193,41 +200,46 @@ export default function CreateBoilerPage() {
                     disabled={isLoading || imageFiles.length >= MAX_IMAGES} 
                     className="hidden" 
                 />
-                 <Button asChild variant="outline" type="button" disabled={isLoading || imageFiles.length >= MAX_IMAGES}>
-                    <Label htmlFor="image-upload" className="cursor-pointer">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Rasm tanlang
-                    </Label>
-                </Button>
+                 {imageFiles.length < MAX_IMAGES && (
+                     <Button asChild variant="outline" type="button" disabled={isLoading}>
+                        <Label htmlFor="image-upload" className="cursor-pointer">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Rasm tanlang
+                        </Label>
+                    </Button>
+                 )}
               </div>
                {imageFiles.length > 0 && (
-                <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-                  {imageFiles.map((imageFile, index) => (
-                    <div key={index} className="relative aspect-square w-full rounded-md overflow-hidden border group">
-                       <Image 
-                           src={imageFile.previewUrl} 
-                           alt={`Preview ${index + 1}`}
-                           fill={true}
-                           style={{objectFit: "cover"}}
-                       />
-                       <Button 
-                         variant="destructive" 
-                         size="icon" 
-                         className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                         onClick={() => removeImage(index)}
-                         type="button"
-                       >
-                         <X className="h-4 w-4" />
-                       </Button>
-                    </div>
-                  ))}
-                  {Array.from({ length: MAX_IMAGES - imageFiles.length }).map((_, index) => (
-                      <div key={`placeholder-${index}`} 
-                           className="aspect-square w-full rounded-md border-2 border-dashed flex items-center justify-center bg-muted cursor-pointer"
-                           onClick={() => fileInputRef.current?.click()}>
-                           <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                  ))}
+                <div className="grid gap-4 grid-cols-1">
+                  <Reorder.Group axis="x" values={imageFiles} onReorder={setImageFiles} className="flex gap-4">
+                    {imageFiles.map((imageFile, index) => (
+                      <Reorder.Item key={imageFile.id} value={imageFile} className="relative aspect-square w-24 h-24 rounded-md overflow-hidden border group cursor-grab active:cursor-grabbing">
+                         <Image 
+                             src={imageFile.previewUrl} 
+                             alt={`Preview`}
+                             fill={true}
+                             style={{objectFit: "cover"}}
+                             draggable={false}
+                         />
+                         <Button 
+                           variant="destructive" 
+                           size="icon" 
+                           className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                           onClick={() => removeImage(imageFile.id)}
+                           type="button"
+                         >
+                           <X className="h-4 w-4" />
+                         </Button>
+                      </Reorder.Item>
+                    ))}
+                    {Array.from({ length: MAX_IMAGES - imageFiles.length }).map((_, index) => (
+                        <div key={`placeholder-${index}`} 
+                             className="aspect-square w-24 h-24 rounded-md border-2 border-dashed flex items-center justify-center bg-muted cursor-pointer"
+                             onClick={() => imageFiles.length < MAX_IMAGES && fileInputRef.current?.click()}>
+                             <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                    ))}
+                  </Reorder.Group>
                 </div>
               )}
           </CardContent>

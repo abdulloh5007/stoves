@@ -30,7 +30,8 @@ import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Gallery } from '@/components/ui/gallery';
+import { Gallery, type GalleryProps } from '@/components/ui/gallery';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 const t = uz.home;
@@ -62,10 +63,8 @@ export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const [theme, setTheme] = useState('dark');
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [galleryTitle, setGalleryTitle] = useState('');
-  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryData, setGalleryData] = useState<Omit<GalleryProps, 'setGalleryData'> | null>(null);
+
 
   useEffect(() => {
     const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
@@ -115,15 +114,6 @@ export default function Home() {
     setIsDialogOpen(true);
   };
   
-  const handleImageClick = (boiler: Boiler) => {
-    if(boiler.imageUrls && boiler.imageUrls.length > 0) {
-      setGalleryImages(boiler.imageUrls);
-      setGalleryTitle(boiler.name);
-      setGalleryIndex(0);
-      setIsGalleryOpen(true);
-    }
-  };
-
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\D/g, '');
     let formatted = '+998 ';
@@ -236,14 +226,24 @@ export default function Home() {
             ) : (
                 boilers.map((boiler) => (
                 <Card key={boiler.id} className="flex flex-col overflow-hidden">
-                    <CardHeader className="p-0 relative h-48 w-full cursor-pointer" onClick={() => handleImageClick(boiler)}>
-                      <Image
-                          src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
-                          alt={boiler.name}
-                          fill
-                          className="object-cover"
-                          data-ai-hint="boiler heater"
-                      />
+                    <CardHeader className="p-0 relative h-48 w-full">
+                       <motion.div
+                          layoutId={`image-${boiler.id}`}
+                          onClick={() => setGalleryData({
+                              images: boiler.imageUrls,
+                              title: boiler.name,
+                              layoutId: `image-${boiler.id}`
+                          })}
+                          className="w-full h-full cursor-pointer"
+                        >
+                           <Image
+                              src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
+                              alt={boiler.name}
+                              fill
+                              className="object-cover"
+                              data-ai-hint="boiler heater"
+                          />
+                        </motion.div>
                     </CardHeader>
                     <CardContent className="p-4 flex-grow">
                     <CardTitle className="text-lg md:text-xl mb-2">{boiler.name}</CardTitle>
@@ -330,13 +330,9 @@ export default function Home() {
           )}
         </Dialog>
       </main>
-      <Gallery 
-        isOpen={isGalleryOpen} 
-        onClose={() => setIsGalleryOpen(false)}
-        images={galleryImages}
-        title={galleryTitle}
-        startIndex={galleryIndex}
-      />
+      <AnimatePresence>
+         {galleryData && <Gallery {...galleryData} setGalleryData={setGalleryData} />}
+      </AnimatePresence>
     </div>
   );
 }
