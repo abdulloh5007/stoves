@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { AnimatePresence, motion, PanInfo } from 'framer-motion';
-import { ArrowLeft, ArrowRight, MoreHorizontal, Download, Package } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MoreHorizontal, Download, Package, X } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import { Button } from './button';
 
 const variants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 1000 : -1000,
+    x: direction > 0 ? '100%' : '-100%',
     opacity: 0,
   }),
   center: {
@@ -25,7 +25,7 @@ const variants = {
   },
   exit: (direction: number) => ({
     zIndex: 0,
-    x: direction < 0 ? 1000 : -1000,
+    x: direction < 0 ? '100%' : '-100%',
     opacity: 0,
   }),
 };
@@ -63,10 +63,6 @@ export function Gallery({ images, title, layoutId, setGalleryData }: GalleryProp
     } else if (swipe > swipeConfidenceThreshold) {
       paginate(-1);
     }
-
-    if (offset.y > 100 && velocity.y > 200) {
-        handleClose();
-    }
   };
   
   const downloadImage = async (url: string, filename: string) => {
@@ -101,30 +97,29 @@ export function Gallery({ images, title, layoutId, setGalleryData }: GalleryProp
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={handleClose}
     >
-        <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 text-white bg-gradient-to-b from-black/60 to-transparent">
-             <div className="flex items-center gap-4">
+        <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-2 md:p-4 text-white bg-gradient-to-b from-black/60 to-transparent">
+             <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={handleClose} className="text-white hover:bg-white/10 hover:text-white">
-                    <ArrowLeft size={24} />
+                    <X size={24} />
                 </Button>
                 <div className="flex flex-col">
                     <span className="font-bold">{title}</span>
-                    <span>{imageIndex + 1} / {images.length}</span>
+                    <span className="text-sm">{imageIndex + 1} / {images.length}</span>
                 </div>
             </div>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white" onClick={(e) => e.stopPropagation()}>
                     <MoreHorizontal size={24} />
                 </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); downloadImage(images[imageIndex], `${title?.replace(/ /g, '_')}_${imageIndex + 1}.jpg`)}}>
+                <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onClick={() => { downloadImage(images[imageIndex], `${title?.replace(/ /g, '_')}_${imageIndex + 1}.jpg`)}}>
                     <Download className="mr-2 h-4 w-4" />
                     <span>Rasmni yuklab olish</span>
                 </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => {e.stopPropagation(); downloadAllImages()}} disabled={isDownloading}>
+                    <DropdownMenuItem onClick={() => { downloadAllImages()}} disabled={isDownloading}>
                     <Package className="mr-2 h-4 w-4" />
                     <span>Barchasini yuklab olish ({images.length})</span>
                 </DropdownMenuItem>
@@ -132,22 +127,22 @@ export function Gallery({ images, title, layoutId, setGalleryData }: GalleryProp
             </DropdownMenu>
         </header>
 
-        <div className="relative flex h-full w-full items-center justify-center" onClick={(e) => e.stopPropagation()}>
-            {images.length > 1 && (
+        <div className="relative flex h-full w-full items-center justify-center overflow-hidden" onClick={handleClose}>
+             {images.length > 1 && (
                  <>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute left-4 z-20 text-white hover:bg-white/10 hover:text-white"
-                        onClick={() => paginate(-1)}
+                        className="absolute left-2 md:left-4 z-20 text-white hover:bg-white/10 hover:text-white"
+                        onClick={(e) => {e.stopPropagation(); paginate(-1)}}
                         >
                         <ArrowLeft size={32} />
                     </Button>
                      <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute right-4 z-20 text-white hover:bg-white/10 hover:text-white"
-                        onClick={() => paginate(1)}
+                        className="absolute right-2 md:right-4 z-20 text-white hover:bg-white/10 hover:text-white"
+                        onClick={(e) => {e.stopPropagation(); paginate(1)}}
                         >
                         <ArrowRight size={32} />
                     </Button>
@@ -169,21 +164,26 @@ export function Gallery({ images, title, layoutId, setGalleryData }: GalleryProp
                     }}
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={1}
-                    onDragEnd={handleDragEnd}
+                    dragElastic={0.2}
+                    onDragEnd={(e, info) => {
+                      e.stopPropagation();
+                      handleDragEnd(e, info);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                 >
                     <motion.div
-                        className="relative w-full h-full max-w-4xl max-h-[80vh] flex items-center justify-center cursor-grab active:cursor-grabbing"
+                        className="relative w-full h-full max-w-4xl max-h-[80vh] cursor-grab active:cursor-grabbing"
                         drag="y"
                         dragConstraints={{ top: 0, bottom: 0 }}
                          onDragEnd={(e, info) => {
-                            if (info.offset.y > 150) {
+                             e.stopPropagation();
+                            if (info.offset.y > 150 && info.velocity.y > 100) {
                                 handleClose();
                             }
                         }}
-                        dragElastic={{top: 0, bottom: 0.2}}
+                        dragElastic={{top: 0, bottom: 0.5}}
                     >
-                        <motion.div layoutId={layoutId} className="relative w-full h-full">
+                      <motion.div layoutId={layoutId} className="relative w-full h-full">
                            <Image
                                 src={images[imageIndex]}
                                 alt={`${title} image ${imageIndex + 1}`}
