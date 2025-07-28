@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import Image from 'next/image';
 
 const t = uz.createBoiler;
 
@@ -105,6 +106,23 @@ export default function CreateBoilerPage() {
                   <Label htmlFor="image">{t.image}</Label>
                   <Input id="image" type="text" placeholder="https://example.com/image.png" disabled={isLoading} value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
               </div>
+              {imageUrl && (
+                <div className="grid gap-2">
+                    <Label>Rasm oldindan ko'rinishi</Label>
+                    <div className="relative aspect-video w-full max-w-sm rounded-md overflow-hidden border">
+                         <Image 
+                            src={imageUrl} 
+                            alt="Image preview" 
+                            layout="fill"
+                            objectFit="contain"
+                            onError={(e) => {
+                                // In case of error, you can show a placeholder
+                                e.currentTarget.src = 'https://placehold.co/600x400.png';
+                            }}
+                         />
+                    </div>
+                </div>
+              )}
           </CardContent>
           <CardFooter>
             <Button type="submit" className="ml-auto" disabled={isLoading}>
