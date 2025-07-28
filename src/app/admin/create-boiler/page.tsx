@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
@@ -16,6 +16,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import Image from 'next/image';
 
 const t = uz.createBoiler;
+const MAX_IMAGES = 4;
 
 const formatPrice = (price: number | string) => {
   const num = typeof price === 'string' ? parseFloat(price.replace(/\s/g, '')) : price;
@@ -23,21 +24,25 @@ const formatPrice = (price: number | string) => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
 
+interface ImageFile {
+  file: File;
+  previewUrl: string;
+}
+
 export default function CreateBoilerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
     setName('');
     setDescription('');
     setPrice('');
-    setImageFile(null);
-    setPreviewUrl(null);
+    setImageFiles([]);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,17 +53,30 @@ export default function CreateBoilerPage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files) {
+      const newFiles: ImageFile[] = Array.from(files).map(file => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+
+      if (imageFiles.length + newFiles.length > MAX_IMAGES) {
+        toast({
+          title: "Xatolik",
+          description: `Maksimum ${MAX_IMAGES} ta rasm yuklash mumkin.`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      setImageFiles(prev => [...prev, ...newFiles]);
     }
   };
 
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+  };
+  
   const uploadImage = async (file: File): Promise<string | null> => {
     const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
     if (!apiKey) {
@@ -84,7 +102,7 @@ export default function CreateBoilerPage() {
       console.error("Error uploading image: ", error);
       toast({
         title: "Rasm yuklashda xatolik",
-        description: "Rasm imgbb'ga yuklanmadi.",
+        description: `Rasm yuklanmadi: ${file.name}.`,
         variant: "destructive",
       });
       return null;
@@ -93,10 +111,10 @@ export default function CreateBoilerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !description || !price || !imageFile) {
+    if (!name || !description || !price || imageFiles.length === 0) {
         toast({
             title: "Xatolik",
-            description: "Iltimos, barcha maydonlarni to'ldiring va rasm tanlang.",
+            description: "Iltimos, barcha maydonlarni to'ldiring va kamida bitta rasm tanlang.",
             variant: "destructive"
         });
         return;
@@ -104,9 +122,15 @@ export default function CreateBoilerPage() {
     
     setIsLoading(true);
 
-    const imageUrl = await uploadImage(imageFile);
+    const uploadPromises = imageFiles.map(imageFile => uploadImage(imageFile.file));
+    const imageUrls = (await Promise.all(uploadPromises)).filter((url): url is string => url !== null);
     
-    if (!imageUrl) {
+    if (imageUrls.length !== imageFiles.length) {
+        toast({
+            title: "Xatolik",
+            description: "Ba'zi rasmlar yuklanmadi. Iltimos qayta urinib ko'ring.",
+            variant: "destructive",
+        });
         setIsLoading(false);
         return;
     }
@@ -116,7 +140,7 @@ export default function CreateBoilerPage() {
             name: name,
             description: description,
             price: Number(price.replace(/\s/g, '')),
-            imageUrl: imageUrl,
+            imageUrls: imageUrls,
         });
         
         toast({
@@ -158,26 +182,52 @@ export default function CreateBoilerPage() {
                   <Input id="price" type="text" inputMode="numeric" placeholder="250 000" disabled={isLoading} value={price} onChange={handlePriceChange} />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="image-upload">{t.image}</Label>
-                <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isLoading} className="hidden" />
-                <Button asChild variant="outline" type="button" disabled={isLoading}>
+                <Label htmlFor="image-upload">{t.image} (Maks. {MAX_IMAGES})</Label>
+                 <Input 
+                    id="image-upload"
+                    ref={fileInputRef}
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    onChange={handleFileChange} 
+                    disabled={isLoading || imageFiles.length >= MAX_IMAGES} 
+                    className="hidden" 
+                />
+                 <Button asChild variant="outline" type="button" disabled={isLoading || imageFiles.length >= MAX_IMAGES}>
                     <Label htmlFor="image-upload" className="cursor-pointer">
                         <Upload className="mr-2 h-4 w-4" />
                         Rasm tanlang
                     </Label>
                 </Button>
               </div>
-              {previewUrl && (
-                <div className="grid gap-2">
-                    <Label>Rasm oldindan ko'rinishi</Label>
-                    <div className="relative aspect-video w-full max-w-sm rounded-md overflow-hidden border flex items-center justify-center bg-muted">
-                        <Image 
-                           src={previewUrl} 
-                           alt="Image preview" 
+               {imageFiles.length > 0 && (
+                <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+                  {imageFiles.map((imageFile, index) => (
+                    <div key={index} className="relative aspect-square w-full rounded-md overflow-hidden border group">
+                       <Image 
+                           src={imageFile.previewUrl} 
+                           alt={`Preview ${index + 1}`}
                            fill={true}
-                           style={{objectFit: "contain"}}
-                        />
+                           style={{objectFit: "cover"}}
+                       />
+                       <Button 
+                         variant="destructive" 
+                         size="icon" 
+                         className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                         onClick={() => removeImage(index)}
+                         type="button"
+                       >
+                         <X className="h-4 w-4" />
+                       </Button>
                     </div>
+                  ))}
+                  {Array.from({ length: MAX_IMAGES - imageFiles.length }).map((_, index) => (
+                      <div key={`placeholder-${index}`} 
+                           className="aspect-square w-full rounded-md border-2 border-dashed flex items-center justify-center bg-muted cursor-pointer"
+                           onClick={() => fileInputRef.current?.click()}>
+                           <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                  ))}
                 </div>
               )}
           </CardContent>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -40,7 +41,7 @@ interface Boiler {
   name: string;
   description: string;
   price: number;
-  imageUrl: string;
+  imageUrls: string[];
 }
 
 // Helper to format numbers with spaces
@@ -62,6 +63,7 @@ export default function Home() {
   const { toast } = useToast();
   const [theme, setTheme] = useState('dark');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
   useEffect(() => {
@@ -112,9 +114,12 @@ export default function Home() {
     setIsDialogOpen(true);
   };
   
-  const handleImageClick = (index: number) => {
-    setGalleryIndex(index);
-    setIsGalleryOpen(true);
+  const handleImageClick = (boiler: Boiler) => {
+    if(boiler.imageUrls && boiler.imageUrls.length > 0) {
+      setGalleryImages(boiler.imageUrls);
+      setGalleryIndex(0);
+      setIsGalleryOpen(true);
+    }
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,11 +198,9 @@ export default function Home() {
     }
   };
   
-  const boilerImages = boilers.map(b => b.imageUrl);
-
   return (
-    <div className="bg-background min-h-screen">
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
+    <div className="bg-muted/40 min-h-screen">
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-xl md:text-2xl font-bold text-foreground">{t.siteTitle}</h1>
           <div className="flex items-center gap-2 md:gap-4">
@@ -229,16 +232,16 @@ export default function Home() {
                     </Card>
                 ))
             ) : (
-                boilers.map((boiler, index) => (
+                boilers.map((boiler) => (
                 <Card key={boiler.id} className="flex flex-col overflow-hidden">
-                    <CardHeader className="p-0 relative h-48 w-full cursor-pointer" onClick={() => handleImageClick(index)}>
-                    <Image
-                        src={boiler.imageUrl || 'https://placehold.co/600x400.png'}
-                        alt={boiler.name}
-                        fill
-                        className="object-cover"
-                        data-ai-hint="boiler heater"
-                    />
+                    <CardHeader className="p-0 relative h-48 w-full cursor-pointer" onClick={() => handleImageClick(boiler)}>
+                      <Image
+                          src={boiler.imageUrls?.[0] || 'https://placehold.co/600x400.png'}
+                          alt={boiler.name}
+                          fill
+                          className="object-cover"
+                          data-ai-hint="boiler heater"
+                      />
                     </CardHeader>
                     <CardContent className="p-4 flex-grow">
                     <CardTitle className="text-lg md:text-xl mb-2">{boiler.name}</CardTitle>
@@ -328,7 +331,7 @@ export default function Home() {
       <Gallery 
         isOpen={isGalleryOpen} 
         onClose={() => setIsGalleryOpen(false)}
-        images={boilerImages}
+        images={galleryImages}
         startIndex={galleryIndex}
       />
     </div>
