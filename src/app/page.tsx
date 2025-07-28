@@ -29,6 +29,7 @@ import uz from '@/locales/uz.json';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Gallery } from '@/components/ui/gallery';
 
 
 const t = uz.home;
@@ -60,6 +61,8 @@ export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const [theme, setTheme] = useState('dark');
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   useEffect(() => {
     const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
@@ -107,6 +110,11 @@ export default function Home() {
   const handleBuyClick = (boiler: Boiler) => {
     setSelectedBoiler(boiler);
     setIsDialogOpen(true);
+  };
+  
+  const handleImageClick = (index: number) => {
+    setGalleryIndex(index);
+    setIsGalleryOpen(true);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +192,8 @@ export default function Home() {
         setIsSubmitting(false);
     }
   };
+  
+  const boilerImages = boilers.map(b => b.imageUrl);
 
   return (
     <div className="bg-background min-h-screen">
@@ -219,15 +229,14 @@ export default function Home() {
                     </Card>
                 ))
             ) : (
-                boilers.map((boiler) => (
+                boilers.map((boiler, index) => (
                 <Card key={boiler.id} className="flex flex-col overflow-hidden">
-                    <CardHeader className="p-0">
+                    <CardHeader className="p-0 relative h-48 w-full cursor-pointer" onClick={() => handleImageClick(index)}>
                     <Image
                         src={boiler.imageUrl || 'https://placehold.co/600x400.png'}
                         alt={boiler.name}
-                        width={600}
-                        height={400}
-                        className="object-cover w-full h-48"
+                        fill
+                        className="object-cover"
                         data-ai-hint="boiler heater"
                     />
                     </CardHeader>
@@ -316,6 +325,12 @@ export default function Home() {
           )}
         </Dialog>
       </main>
+      <Gallery 
+        isOpen={isGalleryOpen} 
+        onClose={() => setIsGalleryOpen(false)}
+        images={boilerImages}
+        startIndex={galleryIndex}
+      />
     </div>
   );
 }
