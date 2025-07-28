@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -12,9 +13,10 @@ interface GalleryProps {
   isOpen: boolean
   onClose: () => void
   startIndex?: number
+  title?: string;
 }
 
-export function Gallery({ images, isOpen, onClose, startIndex = 0 }: GalleryProps) {
+export function Gallery({ images, isOpen, onClose, startIndex = 0, title = 'Qozon' }: GalleryProps) {
   const [index, setIndex] = React.useState(startIndex)
 
   React.useEffect(() => {
@@ -57,7 +59,7 @@ export function Gallery({ images, isOpen, onClose, startIndex = 0 }: GalleryProp
                 <ArrowLeft size={24} />
               </button>
               <div className="flex flex-col">
-                <span className="font-bold">Qozon</span>
+                <span className="font-bold">{title}</span>
                 <span>
                   {index + 1} / {images.length}
                 </span>

@@ -36,7 +36,7 @@ import { Gallery } from '@/components/ui/gallery';
 const t = uz.home;
 
 // Boiler type definition
-interface Boiler {
+export interface Boiler {
   id: string;
   name: string;
   description: string;
@@ -64,6 +64,7 @@ export default function Home() {
   const [theme, setTheme] = useState('dark');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryTitle, setGalleryTitle] = useState('');
   const [galleryIndex, setGalleryIndex] = useState(0);
 
   useEffect(() => {
@@ -117,6 +118,7 @@ export default function Home() {
   const handleImageClick = (boiler: Boiler) => {
     if(boiler.imageUrls && boiler.imageUrls.length > 0) {
       setGalleryImages(boiler.imageUrls);
+      setGalleryTitle(boiler.name);
       setGalleryIndex(0);
       setIsGalleryOpen(true);
     }
@@ -332,6 +334,7 @@ export default function Home() {
         isOpen={isGalleryOpen} 
         onClose={() => setIsGalleryOpen(false)}
         images={galleryImages}
+        title={galleryTitle}
         startIndex={galleryIndex}
       />
     </div>

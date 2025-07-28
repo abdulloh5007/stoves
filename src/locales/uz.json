@@ -18,6 +18,7 @@
     "dashboard": "Boshqaruv paneli",
     "main": "Asosiy",
     "requests": "Arizalar",
+    "boilers": "Kotyollar",
     "createBoiler": "Katyol yaratish",
     "logout": "Chiqish",
     "welcome": "Xush kelibsiz!",
@@ -35,6 +36,19 @@
     "price": "Taklif qilingan narx",
     "status": "Holat"
   },
+  "boilers": {
+    "title": "Kotyollar",
+    "description": "Mavjud kotyollarni boshqarish.",
+    "edit": "Tahrirlash",
+    "delete": "O'chirish",
+    "deleteConfirmationTitle": "Haqiqatan ham o'chirmoqchimisiz?",
+    "deleteConfirmationDescription": "Bu amalni qaytarib bo'lmaydi. Bu kotyolni butunlay o'chirib tashlaydi.",
+    "cancel": "Bekor qilish",
+    "confirm": "Tasdiqlash",
+    "deleteSuccess": "Kotyol muvaffaqiyatli o'chirildi.",
+    "deleteError": "Kotyolni o'chirishda xatolik yuz berdi.",
+    "editBoilerTitle": "Kotyolni tahrirlash"
+  },
   "createBoiler": {
     "title": "Yangi katyol yaratish",
     "description": "Katalogga yangi katyol qo'shish uchun barcha maydonlarni to'ldiring.",
@@ -45,8 +59,10 @@
     "price": "Narxi (UZS)",
     "image": "Rasm",
     "submitButton": "Katyol yaratish",
+    "updateButton": "Saqlash",
     "successTitle": "Muvaffaqiyatli!",
-    "successDescription": "Yangi katyol muvaffaqiyatli yaratildi."
+    "successDescription": "Yangi katyol muvaffaqiyatli yaratildi.",
+    "updateSuccess": "Kotyol muvaffaqiyatli yangilandi."
   },
   "login": {
     "title": "Administrator uchun kirish",

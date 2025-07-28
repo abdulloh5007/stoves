@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Loader2, LogOut, Menu, Moon, Sun, List, PlusSquare } from 'lucide-react';
+import { Loader2, LogOut, Menu, Moon, Sun, List, PlusSquare, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -92,6 +93,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </CardContent>
               </Card>
             </Link>
+            <Link href="/admin/boilers" passHref onClick={handleLinkClick}>
+              <Card className={cn("hover:bg-accent cursor-pointer", {
+                  "bg-primary text-primary-foreground hover:bg-primary/90": pathname.startsWith('/admin/boilers'),
+              })}>
+                  <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+                      <Package className="h-8 w-8 mb-2" />
+                      <span className="text-center">{t.boilers}</span>
+                  </CardContent>
+              </Card>
+            </Link>
             <Link href="/admin/create-boiler" passHref onClick={handleLinkClick}>
               <Card className={cn("hover:bg-accent cursor-pointer", {
                   "bg-primary text-primary-foreground hover:bg-primary/90": pathname === '/admin/create-boiler',
@@ -113,7 +124,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   
   const bottomNavContent = (
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card md:hidden">
-          <div className="grid h-16 grid-cols-2">
+          <div className="grid h-16 grid-cols-3">
               <Link href="/admin/requests" passHref>
                   <div className={cn(
                       "flex h-full flex-col items-center justify-center gap-1 text-muted-foreground",
@@ -121,6 +132,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   )}>
                       <List className="h-5 w-5" />
                       <span className="text-xs font-medium">{t.requests}</span>
+                  </div>
+              </Link>
+              <Link href="/admin/boilers" passHref>
+                   <div className={cn(
+                      "flex h-full flex-col items-center justify-center gap-1 text-muted-foreground",
+                      { "bg-muted text-primary": pathname.startsWith('/admin/boilers')}
+                  )}>
+                      <Package className="h-5 w-5" />
+                      <span className="text-xs font-medium">{t.boilers}</span>
                   </div>
               </Link>
               <Link href="/admin/create-boiler" passHref>
