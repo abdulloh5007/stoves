@@ -113,11 +113,11 @@ export default function CreateBoilerPage() {
                          <Image 
                             src={imageUrl} 
                             alt="Image preview" 
-                            layout="fill"
-                            objectFit="contain"
+                            fill={true}
+                            style={{objectFit: "contain"}}
                             onError={(e) => {
-                                // In case of error, you can show a placeholder
-                                e.currentTarget.src = 'https://placehold.co/600x400.png';
+                                e.currentTarget.src = 'https://placehold.co/600x400/png?text=Noto`g`ri+URL';
+                                e.currentTarget.srcset = "";
                             }}
                          />
                     </div>
